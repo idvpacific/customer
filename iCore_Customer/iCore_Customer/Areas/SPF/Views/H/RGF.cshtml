@@ -1,0 +1,100 @@
+﻿@{
+    ViewBag.Title = ViewBag.FormName_Title;
+    switch (ViewBag.TemplateCode)
+    {
+        case "1":
+            {
+                Layout = "~/Areas/SPF/Views/Shared/_LayoutTemp1.cshtml";
+                break;
+            }
+    }
+}
+@section CSSScript { <link href="~/Theme/Loader/Loader1.css" rel="stylesheet" /> }
+<iframe src="@ViewBag.iFrame_Src" id="iFrame_GIC" scrolling="no" frameborder="0" style="width:100%;border:none;display:none;margin-bottom:10px" onload="iFrm_AutoHeight()"></iframe>
+<div class="bodyL" id="WatingDIV" style="display:none;width:100%;height:100%;text-align:center;">
+    <div style="width:100%;height:100px"></div>
+    <div class="loader" style="margin: 0 auto;">
+        <div>
+            <ul>
+                <li>
+                    <svg viewBox="0 0 90 120" fill="currentColor">
+                        <path d="M90,0 L90,120 L11,120 C4.92486775,120 0,115.075132 0,109 L0,11 C0,4.92486775 4.92486775,0 11,0 L90,0 Z M71.5,81 L18.5,81 C17.1192881,81 16,82.1192881 16,83.5 C16,84.8254834 17.0315359,85.9100387 18.3356243,85.9946823 L18.5,86 L71.5,86 C72.8807119,86 74,84.8807119 74,83.5 C74,82.1745166 72.9684641,81.0899613 71.6643757,81.0053177 L71.5,81 Z M71.5,57 L18.5,57 C17.1192881,57 16,58.1192881 16,59.5 C16,60.8254834 17.0315359,61.9100387 18.3356243,61.9946823 L18.5,62 L71.5,62 C72.8807119,62 74,60.8807119 74,59.5 C74,58.1192881 72.8807119,57 71.5,57 Z M71.5,33 L18.5,33 C17.1192881,33 16,34.1192881 16,35.5 C16,36.8254834 17.0315359,37.9100387 18.3356243,37.9946823 L18.5,38 L71.5,38 C72.8807119,38 74,36.8807119 74,35.5 C74,34.1192881 72.8807119,33 71.5,33 Z"></path>
+                    </svg>
+                </li>
+                <li>
+                    <svg viewBox="0 0 90 120" fill="currentColor">
+                        <path d="M90,0 L90,120 L11,120 C4.92486775,120 0,115.075132 0,109 L0,11 C0,4.92486775 4.92486775,0 11,0 L90,0 Z M71.5,81 L18.5,81 C17.1192881,81 16,82.1192881 16,83.5 C16,84.8254834 17.0315359,85.9100387 18.3356243,85.9946823 L18.5,86 L71.5,86 C72.8807119,86 74,84.8807119 74,83.5 C74,82.1745166 72.9684641,81.0899613 71.6643757,81.0053177 L71.5,81 Z M71.5,57 L18.5,57 C17.1192881,57 16,58.1192881 16,59.5 C16,60.8254834 17.0315359,61.9100387 18.3356243,61.9946823 L18.5,62 L71.5,62 C72.8807119,62 74,60.8807119 74,59.5 C74,58.1192881 72.8807119,57 71.5,57 Z M71.5,33 L18.5,33 C17.1192881,33 16,34.1192881 16,35.5 C16,36.8254834 17.0315359,37.9100387 18.3356243,37.9946823 L18.5,38 L71.5,38 C72.8807119,38 74,36.8807119 74,35.5 C74,34.1192881 72.8807119,33 71.5,33 Z"></path>
+                    </svg>
+                </li>
+                <li>
+                    <svg viewBox="0 0 90 120" fill="currentColor">
+                        <path d="M90,0 L90,120 L11,120 C4.92486775,120 0,115.075132 0,109 L0,11 C0,4.92486775 4.92486775,0 11,0 L90,0 Z M71.5,81 L18.5,81 C17.1192881,81 16,82.1192881 16,83.5 C16,84.8254834 17.0315359,85.9100387 18.3356243,85.9946823 L18.5,86 L71.5,86 C72.8807119,86 74,84.8807119 74,83.5 C74,82.1745166 72.9684641,81.0899613 71.6643757,81.0053177 L71.5,81 Z M71.5,57 L18.5,57 C17.1192881,57 16,58.1192881 16,59.5 C16,60.8254834 17.0315359,61.9100387 18.3356243,61.9946823 L18.5,62 L71.5,62 C72.8807119,62 74,60.8807119 74,59.5 C74,58.1192881 72.8807119,57 71.5,57 Z M71.5,33 L18.5,33 C17.1192881,33 16,34.1192881 16,35.5 C16,36.8254834 17.0315359,37.9100387 18.3356243,37.9946823 L18.5,38 L71.5,38 C72.8807119,38 74,36.8807119 74,35.5 C74,34.1192881 72.8807119,33 71.5,33 Z"></path>
+                    </svg>
+                </li>
+                <li>
+                    <svg viewBox="0 0 90 120" fill="currentColor">
+                        <path d="M90,0 L90,120 L11,120 C4.92486775,120 0,115.075132 0,109 L0,11 C0,4.92486775 4.92486775,0 11,0 L90,0 Z M71.5,81 L18.5,81 C17.1192881,81 16,82.1192881 16,83.5 C16,84.8254834 17.0315359,85.9100387 18.3356243,85.9946823 L18.5,86 L71.5,86 C72.8807119,86 74,84.8807119 74,83.5 C74,82.1745166 72.9684641,81.0899613 71.6643757,81.0053177 L71.5,81 Z M71.5,57 L18.5,57 C17.1192881,57 16,58.1192881 16,59.5 C16,60.8254834 17.0315359,61.9100387 18.3356243,61.9946823 L18.5,62 L71.5,62 C72.8807119,62 74,60.8807119 74,59.5 C74,58.1192881 72.8807119,57 71.5,57 Z M71.5,33 L18.5,33 C17.1192881,33 16,34.1192881 16,35.5 C16,36.8254834 17.0315359,37.9100387 18.3356243,37.9946823 L18.5,38 L71.5,38 C72.8807119,38 74,36.8807119 74,35.5 C74,34.1192881 72.8807119,33 71.5,33 Z"></path>
+                    </svg>
+                </li>
+                <li>
+                    <svg viewBox="0 0 90 120" fill="currentColor">
+                        <path d="M90,0 L90,120 L11,120 C4.92486775,120 0,115.075132 0,109 L0,11 C0,4.92486775 4.92486775,0 11,0 L90,0 Z M71.5,81 L18.5,81 C17.1192881,81 16,82.1192881 16,83.5 C16,84.8254834 17.0315359,85.9100387 18.3356243,85.9946823 L18.5,86 L71.5,86 C72.8807119,86 74,84.8807119 74,83.5 C74,82.1745166 72.9684641,81.0899613 71.6643757,81.0053177 L71.5,81 Z M71.5,57 L18.5,57 C17.1192881,57 16,58.1192881 16,59.5 C16,60.8254834 17.0315359,61.9100387 18.3356243,61.9946823 L18.5,62 L71.5,62 C72.8807119,62 74,60.8807119 74,59.5 C74,58.1192881 72.8807119,57 71.5,57 Z M71.5,33 L18.5,33 C17.1192881,33 16,34.1192881 16,35.5 C16,36.8254834 17.0315359,37.9100387 18.3356243,37.9946823 L18.5,38 L71.5,38 C72.8807119,38 74,36.8807119 74,35.5 C74,34.1192881 72.8807119,33 71.5,33 Z"></path>
+                    </svg>
+                </li>
+                <li>
+                    <svg viewBox="0 0 90 120" fill="currentColor">
+                        <path d="M90,0 L90,120 L11,120 C4.92486775,120 0,115.075132 0,109 L0,11 C0,4.92486775 4.92486775,0 11,0 L90,0 Z M71.5,81 L18.5,81 C17.1192881,81 16,82.1192881 16,83.5 C16,84.8254834 17.0315359,85.9100387 18.3356243,85.9946823 L18.5,86 L71.5,86 C72.8807119,86 74,84.8807119 74,83.5 C74,82.1745166 72.9684641,81.0899613 71.6643757,81.0053177 L71.5,81 Z M71.5,57 L18.5,57 C17.1192881,57 16,58.1192881 16,59.5 C16,60.8254834 17.0315359,61.9100387 18.3356243,61.9946823 L18.5,62 L71.5,62 C72.8807119,62 74,60.8807119 74,59.5 C74,58.1192881 72.8807119,57 71.5,57 Z M71.5,33 L18.5,33 C17.1192881,33 16,34.1192881 16,35.5 C16,36.8254834 17.0315359,37.9100387 18.3356243,37.9946823 L18.5,38 L71.5,38 C72.8807119,38 74,36.8807119 74,35.5 C74,34.1192881 72.8807119,33 71.5,33 Z"></path>
+                    </svg>
+                </li>
+            </ul>
+        </div>
+        <h3 style="margin-top:25px">Please Wait ...</h3>
+        <h6>We are reviewing your form information.</h6>
+    </div>
+</div>
+<div class="" id="FinishedDIV" style="width:100%;display:none;height:auto;text-align:center;background-color:white">
+    <div style="width:100%;height:100px"></div>
+    <img src="~/Theme/Loader/Finished.gif" />
+    <div style="width:100%;height:25px"></div>
+    <h1 class="text-success">Congratulations!</h1>
+    <h5 class="text-primary">Your form information was successfully registered.</h5>
+    <h6 class="text-dark" style="margin-bottom:25px">Your form was referred to the relevant unit, after the final review, the result will be sent to you.</h6>
+    <h4 class="text-danger" style="margin:auto;padding:20px;background-color:lightgray;width:auto;border-radius:5px;max-width:400px">Tracking Code: <span style="font-size:25px" class="text-primary" id="TRCD"></span></h4>
+    <div style="width:100%;height:50px"></div>
+</div>
+@section JSScript {
+    <script>
+        function AllElements_Hide() { var DivHide = document.getElementsByClassName('GIC_LNT_Hide'); for (var i = 0; i < DivHide.length; i++) { var SelDiv = DivHide[i]; SelDiv.style.display = "none"; }; }
+        function AllElements_Show() { var DivHide = document.getElementsByClassName('GIC_LNT_Hide'); for (var i = 0; i < DivHide.length; i++) { var SelDiv = DivHide[i]; SelDiv.style.display = "Block"; }; }
+        function Submit_Form() { document.getElementById('iFrame_GIC').contentWindow.Submit_Form(); }
+        function Reset_Form() { document.getElementById('iFrame_GIC').contentWindow.Reset_Form(); }
+        function Reload_Form() { document.getElementById('iFrame_GIC').contentWindow.location.reload(true); }
+        function iFrm_AutoHeight() { var ifrm = document.getElementById('iFrame_GIC'); var bodyheight = ifrm.contentWindow.document.getElementById("bodyelmnt").offsetHeight; ifrm.style.height = bodyheight + "px"; ifrm.style.display = "block"; }
+        function MovetoUP() { $("html, body").animate({ scrollTop: 0 }, "fast"); }
+        function ReReadeyPage() {
+            document.getElementById('Btn_FormController').style.opacity = "1";
+            document.getElementById('Btn_FormController').style.pointerEvents = "auto";
+            document.getElementById('WatingDIV').style.display = "none";
+            document.getElementById('FinishedDIV').style.display = "none";
+            document.getElementById('iFrame_GIC').style.display = "block";
+            iFrm_AutoHeight();
+        }
+        function SendMessageParent(Text, Title, SendType) { ReReadeyPage(); switch (SendType) { case 'E': { toastr.error(Text, Title, { "showMethod": "slideDown", "hideMethod": "slideUp", positionClass: 'toast-bottom-right', "progressBar": true, "closeButton": true, "timeOut": 8000 }); break; } case 'W': { toastr.warning(Text, Title, { "showMethod": "slideDown", "hideMethod": "slideUp", positionClass: 'toast-bottom-right', "progressBar": true, "closeButton": true, "timeOut": 8000 }); break; } case 'S': { toastr.success(Text, Title, { "showMethod": "slideDown", "hideMethod": "slideUp", positionClass: 'toast-bottom-right', "progressBar": true, "closeButton": true, "timeOut": 8000 }); break; } } }
+        function WaitingPage() {
+            window.scrollTo(0, 0);
+            document.getElementById('Btn_FormController').style.opacity = "0.7";
+            document.getElementById('Btn_FormController').style.pointerEvents = "none";
+            document.getElementById('FinishedDIV').style.display = "none";
+            document.getElementById('iFrame_GIC').style.display = "none";
+            document.getElementById('WatingDIV').style.display = "block";
+        }
+        function Finished(TCID) {
+            window.scrollTo(0, 0);
+            document.getElementById('TRCD').innerText = TCID;
+            document.getElementById('Btn_FormController').style.display = "none";
+            document.getElementById('iFrame_GIC').style.display = "none";
+            document.getElementById('WatingDIV').style.display = "none";
+            document.getElementById('FinishedDIV').style.display = "Block";
+        }
+    </script>
+}
