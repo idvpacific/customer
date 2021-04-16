@@ -21,6 +21,7 @@ namespace iCore_Customer.Controllers
         iCore_Administrator.Modules.SQL_Tranceiver Sq = new iCore_Administrator.Modules.SQL_Tranceiver();
         iCore_Administrator.Modules.PublicFunctions Pb = new iCore_Administrator.Modules.PublicFunctions();
         iCore_Administrator.Modules.HSU_Application.Application_MasterFunction AppFn = new iCore_Administrator.Modules.HSU_Application.Application_MasterFunction();
+        iCore_Administrator.Modules.HSU_Application.HSU_Callback HSUCB = new iCore_Administrator.Modules.HSU_Application.HSU_Callback();
         //====================================================================================================================
         public ActionResult Index() { return new HttpNotFoundResult(); }
         //====================================================================================================================
@@ -44,6 +45,9 @@ namespace iCore_Customer.Controllers
                         {
                             if (DT_User.Rows.Count == 1)
                             {
+                                var DomainURL = $"{Request.Url.GetLeftPart(UriPartial.Authority)}{Url.Content("~/")}";
+                                if (DomainURL.Substring(DomainURL.Length - 1, 1) != "/") { DomainURL = DomainURL + "/"; }
+                                ViewBag.Req_URL = DomainURL;
                                 ViewBag.Form_ID = DT_Form.Rows[0][0].ToString().Trim();
                                 ViewBag.User_ID = DT_Form.Rows[0][1].ToString().Trim();
                                 ViewBag.User_URL = Req_Form_ID;
@@ -63,6 +67,14 @@ namespace iCore_Customer.Controllers
                                 ViewBag.DT_Sections = DT_Sections.Rows;
                                 string iCoreUserURL = System.Configuration.ConfigurationManager.AppSettings["iCore_User_URL"];
                                 ViewBag.iCoreUserURL = iCoreUserURL;
+                                ViewBag.SectionAsPage = "0";
+                                try
+                                {
+                                    DataTable DT_Form_Config = new DataTable();
+                                    DT_Form_Config = Sq.Get_DTable_TSQL(iCore_Administrator.Modules.DataBase_Selector.Administrator, "Select ShowAsPage From Users_07_Hospitality_SingleUser_RegisterForms_Configuration Where (User_ID = '" + DT_Form.Rows[0][1].ToString().Trim() + "') And (Form_ID = '" + DT_Form.Rows[0][0].ToString().Trim() + "')");
+                                    ViewBag.SectionAsPage = DT_Form_Config.Rows[0][0].ToString().Trim();
+                                }
+                                catch (Exception) { }
                                 return View();
                             }
                             else
@@ -208,7 +220,7 @@ namespace iCore_Customer.Controllers
         // 5 : Failed
         //====================================================================================================================
         [HttpPost]
-        public JsonResult HSU_Form_Create_Application(string FID, string UID, string UIP, string UBN)
+        public JsonResult HSU_Form_Create_Application(string FID, string UID, string UIP, string UBN, string URLP)
         {
             try
             {
@@ -217,6 +229,7 @@ namespace iCore_Customer.Controllers
                 UID = UID.Replace(",", " ").Replace("#", "").Replace("  ", " ").Trim();
                 UIP = UIP.Replace(",", " ").Replace("#", "").Replace("  ", " ").Trim();
                 UBN = UBN.Replace(",", " ").Replace("#", "").Replace("  ", " ").Trim();
+                URLP = URLP.Replace(",", " ").Replace("#", "").Replace("  ", " ").Trim();
                 DataTable DT = new DataTable();
                 DT = Sq.Get_DTable_TSQL(iCore_Administrator.Modules.DataBase_Selector.Administrator, "Select ID From Users_02_SingleUser Where (ID = '" + UID + "') And (Status_Code = '1') And (Removed = '0')");
                 if (DT.Rows != null)
@@ -230,7 +243,32 @@ namespace iCore_Customer.Controllers
                         string TRCD = DTRes.Rows[0][0].ToString().Trim() + Pb.Make_Security_Code(10);
                         Thread.Sleep(10);
                         Sq.Execute_TSql(iCore_Administrator.Modules.DataBase_Selector.Administrator, "Update Users_08_Hospitality_SingleUser_Application Set [App_UnicID] = '" + "HSU-" + DTRes.Rows[0][0].ToString().Trim() + Pb.Make_Security_Code(40) + "',[TrakingCode] = '" + TRCD + "' Where (ID = '" + DTRes.Rows[0][0].ToString().Trim() + "')");
-                        ResSTR = DTRes.Rows[0][0].ToString().Trim() + "-" + TRCD;
+                        string AppIDLST = DTRes.Rows[0][0].ToString().Trim();
+                        Sq.Execute_TSql(iCore_Administrator.Modules.DataBase_Selector.Administrator, "Delete From Users_13_Hospitality_SingleUser_Application_DataInfo Where (App_ID = '" + AppIDLST + "')");
+                        Sq.Execute_TSql(iCore_Administrator.Modules.DataBase_Selector.Administrator, "Insert Into Users_13_Hospitality_SingleUser_Application_DataInfo Values ('" + AppIDLST + "','','','','','','','','','','','','','','','','','','','','','0','0','','0','','','','','0','0','','0','','','','','0','0','','','','','','','0','0','','','','','','','')");
+                        string[,] Param_Define = new string[,] { { "", "" }, { "", "" }, { "", "" }, { "", "" }, { "", "" }, { "", "" }, { "", "" }, { "", "" }, { "", "" }, { "", "" } };
+                        try
+                        {
+                            string[] URLPM = URLP.Split('^');
+                            for (int i = 0; i < URLPM.Length; i++)
+                            {
+                                try
+                                {
+                                    string[] PVal = URLPM[i].Split('=');
+                                    Param_Define[i, 0] = PVal[0].Trim();
+                                    Param_Define[i, 1] = PVal[1].Trim();
+                                }
+                                catch (Exception) { }
+                            }
+                        }
+                        catch (Exception) { }
+                        try
+                        {
+                            Sq.Execute_TSql(iCore_Administrator.Modules.DataBase_Selector.Administrator, "Update Users_13_Hospitality_SingleUser_Application_DataInfo Set [Parameter_Key_01] = '" + Param_Define[0, 0] + "',[Parameter_Value_01] = '" + Param_Define[0, 1] + "',[Parameter_Key_02] = '" + Param_Define[1, 0] + "',[Parameter_Value_02] = '" + Param_Define[1, 1] + "',[Parameter_Key_03] = '" + Param_Define[2, 0] + "',[Parameter_Value_03] = '" + Param_Define[2, 1] + "',[Parameter_Key_04] = '" + Param_Define[3, 0] + "',[Parameter_Value_04] = '" + Param_Define[3, 1] + "',[Parameter_Key_05] = '" + Param_Define[4, 0] + "',[Parameter_Value_05] = '" + Param_Define[4, 1] + "',[Parameter_Key_06] = '" + Param_Define[5, 0] + "',[Parameter_Value_06] = '" + Param_Define[5, 1] + "',[Parameter_Key_07] = '" + Param_Define[6, 0] + "',[Parameter_Value_07] = '" + Param_Define[6, 1] + "',[Parameter_Key_08] = '" + Param_Define[7, 0] + "',[Parameter_Value_08] = '" + Param_Define[7, 1] + "',[Parameter_Key_09] = '" + Param_Define[8, 0] + "',[Parameter_Value_09] = '" + Param_Define[8, 1] + "',[Parameter_Key_10] = '" + Param_Define[9, 0] + "',[Parameter_Value_10] = '" + Param_Define[9, 1] + "' Where (App_ID = '" + AppIDLST + "')");
+
+                        }
+                        catch (Exception) { }
+                        ResSTR = AppIDLST + "-" + TRCD;
                     }
                     else
                     {
@@ -350,11 +388,14 @@ namespace iCore_Customer.Controllers
         }
         //====================================================================================================================
         [HttpPost]
-        public void HSU_Form_Start(string AID)
+        public void HSU_Form_Start(string AID, string FID)
         {
             try
             {
                 AID = AID.Replace(",", " ").Replace("#", "").Replace("  ", " ").Trim();
+                FID = FID.Replace(",", " ").Replace("#", "").Replace("  ", " ").Trim();
+                Task.Run(() => HSUCB.Send_CallBack_Submit(AID, FID));
+                Task.Run(() => HSUCB.Send_CallBack_Submit2(AID, FID));
                 string UURL = System.Configuration.ConfigurationManager.AppSettings["iCore_User_URL"];
                 string SecretKey = System.Configuration.ConfigurationManager.AppSettings["iCore_API_SecretKey"];
                 var client = new RestClient(UURL + "/UIMG/HSU_Form_Start");
@@ -366,6 +407,59 @@ namespace iCore_Customer.Controllers
             }
             catch (Exception)
             { }
+        }
+        //====================================================================================================================
+        // 0 : No New data
+        // 1 : Error
+        // 2 : Guided image capture
+        // 3 : Liveness test
+        [HttpPost]
+        public JsonResult HSU_GD(string UID, string URL, string SID, string FID, string EID)
+        {
+            try
+            {
+                string ResVal = "0"; string ResSTR = "";
+                UID = UID.Replace(",", " ").Replace("#", "").Replace("  ", " ").Trim();
+                URL = URL.Replace(",", " ").Replace("#", "").Replace("  ", " ").Trim();
+                SID = SID.Replace(",", " ").Replace("#", "").Replace("  ", " ").Trim();
+                FID = FID.Replace(",", " ").Replace("#", "").Replace("  ", " ").Trim();
+                EID = EID.Replace(",", " ").Replace("#", "").Replace("  ", " ").Trim();
+                DataTable DT = new DataTable();
+                DT = Sq.Get_DTable_TSQL(iCore_Administrator.Modules.DataBase_Selector.Administrator, "Select Element_Type,Feeback_D1,Feeback_D2,Feeback_D3,Feeback_D4,Feeback_D5,Feeback_D6,Feeback_D7,Feeback_D8,Feeback_D9 From Users_13_Hospitality_SingleUser_Application_QR_Links Where (UID = '" + UID + "') And (Request_URL = '" + URL + "') And (User_ID = '" + SID + "') And (Form_ID = '" + FID + "') And (Element_ID = '" + EID + "') And (Data_Change = '1') And (Data_Read = '0')");
+                if (DT != null)
+                {
+                    if (DT.Rows != null)
+                    {
+                        if (DT.Rows.Count == 1)
+                        {
+                            ResVal = DT.Rows[0][0].ToString().Trim();
+                            if (DT.Rows[0][0].ToString().Trim() == "2")
+                            {
+                                string BasPath = Server.MapPath("~/Drive/Hospitality/QRUpload/" + UID + ".jpg");
+                                if (System.IO.File.Exists(BasPath) == true)
+                                {
+                                    byte[] ImgBytes = System.IO.File.ReadAllBytes(BasPath);
+                                    var base64 = Convert.ToBase64String(ImgBytes);
+                                    ResSTR = EID + "!##!" + UID  + "!##!" + String.Format("data:image/jpg;base64,{0}", base64);
+                                }
+                            }
+                            else
+                            {
+                                ResSTR = EID + "!##!" + UID + "!##!" + DT.Rows[0][1].ToString().Trim() + "!##!" + DT.Rows[0][2].ToString().Trim() + "!##!" + DT.Rows[0][3].ToString().Trim() + "!##!" + DT.Rows[0][4].ToString().Trim() + "!##!" + DT.Rows[0][5].ToString().Trim() + "!##!" + DT.Rows[0][6].ToString().Trim() + "!##!" + DT.Rows[0][7].ToString().Trim() + "!##!" + DT.Rows[0][8].ToString().Trim() + "!##!" + DT.Rows[0][9].ToString().Trim();
+                            }
+                            Sq.Execute_TSql(iCore_Administrator.Modules.DataBase_Selector.Administrator, "Update Users_13_Hospitality_SingleUser_Application_QR_Links Set [Data_Read] = '1' Where (UID = '" + UID + "') And (Request_URL = '" + URL + "') And (User_ID = '" + SID + "') And (Form_ID = '" + FID + "') And (Element_ID = '" + EID + "')");
+                        }
+                    }
+                }
+                IList<SelectListItem> FeedBack = new List<SelectListItem> { new SelectListItem { Value = ResVal, Text = ResSTR.Trim() } };
+                return Json(FeedBack, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception)
+            {
+                IList<SelectListItem> FeedBack = new List<SelectListItem>
+                { new SelectListItem{Text = "" , Value = "1"}};
+                return Json(FeedBack, JsonRequestBehavior.AllowGet);
+            }
         }
         //====================================================================================================================
     }

@@ -14,6 +14,11 @@ namespace iCore_Customer.Controllers
             return RedirectToAction("Home");
         }
 
+        public ActionResult QR_Invalid()
+        {
+            return View();
+        }
+
         public ActionResult Error404()
         {
             return View();

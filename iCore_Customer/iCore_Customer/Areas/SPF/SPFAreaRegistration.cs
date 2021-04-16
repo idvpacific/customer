@@ -19,6 +19,11 @@ namespace iCore_Customer.Areas.SPF
                 "SPF/{controller}/{action}/{id}",
                 new { action = "Index", id = UrlParameter.Optional }
             );
+            context.MapRoute(
+                "SPF_SPF",
+                "SPF/{controller}/{action}/{id}/{param}",
+                new { action = "Index", id = UrlParameter.Optional, param = UrlParameter.Optional }
+            );
         }
     }
 }

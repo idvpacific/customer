@@ -18,6 +18,11 @@ namespace iCore_Customer
                 url: "{controller}/{action}/{id}",
                 defaults: new { controller = "UC", action = "Index", id = UrlParameter.Optional }
             );
+            routes.MapRoute(
+                name: "SPF_SPFS",
+                url: "{controller}/{action}/{id}/{param}",
+                defaults: new { action = "Index", id = UrlParameter.Optional, param = UrlParameter.Optional }
+            );
         }
     }
 }

@@ -229,16 +229,16 @@
                         else {
                             isErr = "1";
                         }
-                        parent.LNT_CallBack("2", isErr, Scor, LAss, result.TransactionId, result.ErrorCode, result.Error);
+                        parent.IDV_LNT_CallBack("2", isErr, Scor, LAss, result.TransactionId, result.ErrorCode, result.Error);
                     }
                     else {
-                        parent.LNT_CallBack("2", "1", "", "", "", "", "");
+                        parent.IDV_LNT_CallBack("2", "1", "", "", "", "", "");
                     }
                     loader.style.display = "none";
                 })
             });
         }
-        function CancelCapture() { parent.LNT_CallBack("1", "", "", "", "", "", ""); }
+        function CancelCapture() { parent.IDV_LNT_CallBack("1", "", "", "", "", "", ""); }
         var modal = document.getElementById("acuant-modal");
         var span = document.getElementsByClassName("close")[0];
         span.onclick = function () { closeCamera(); modal.style.display = "none"; }

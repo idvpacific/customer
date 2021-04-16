@@ -90,3 +90,7 @@ E:\01- Project\04- Customer Portal\01- Source\iCore_Customer\iCore_Customer\obj\
 E:\01- Project\04- Customer Portal\01- Source\iCore_Customer\iCore_Customer\obj\Release\iCore_Customer.dll
 E:\01- Project\04- Customer Portal\01- Source\iCore_Customer\iCore_Customer\obj\Release\iCore_Customer.pdb
 E:\01- Project\04- Customer Portal\01- Source\iCore_Customer\iCore_Customer\bin\AssureTec.AssureID.Web.SDK.dll
+E:\01- Project\04- Customer Portal\01- Source\iCore_Customer\iCore_Customer\bin\zxing.dll
+E:\01- Project\04- Customer Portal\01- Source\iCore_Customer\iCore_Customer\bin\zxing.presentation.dll
+E:\01- Project\04- Customer Portal\01- Source\iCore_Customer\iCore_Customer\bin\zxing.xml
+E:\01- Project\04- Customer Portal\01- Source\iCore_Customer\iCore_Customer\bin\zxing.presentation.xml

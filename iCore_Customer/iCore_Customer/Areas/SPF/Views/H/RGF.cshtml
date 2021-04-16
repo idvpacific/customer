@@ -4,13 +4,23 @@
     {
         case "1":
             {
-                Layout = "~/Areas/SPF/Views/Shared/_LayoutTemp1.cshtml";
+                Layout = "~/Areas/SPF/Views/Shared/_LayoutVeuxyV1.cshtml";
+                break;
+            }
+        case "2":
+            {
+                Layout = "~/Areas/SPF/Views/Shared/_LayoutVeuxyV2.cshtml";
+                break;
+            }
+        case "3":
+            {
+                Layout = "~/Areas/SPF/Views/Shared/_LayoutOcean.cshtml";
                 break;
             }
     }
 }
 @section CSSScript { <link href="~/Theme/Loader/Loader1.css" rel="stylesheet" /> }
-<iframe src="@ViewBag.iFrame_Src" id="iFrame_GIC" scrolling="no" frameborder="0" style="width:100%;border:none;display:none;margin-bottom:10px" onload="iFrm_AutoHeight()"></iframe>
+<iframe src="@ViewBag.iFrame_Src" id="iFrame_GIC" scrolling="no" frameborder="0" style="width:100%;border:none;display:none;margin-bottom:10px" onload="IDVPacific_Page_AutoHeight()"></iframe>
 <div class="bodyL" id="WatingDIV" style="display:none;width:100%;height:100%;text-align:center;">
     <div style="width:100%;height:100px"></div>
     <div class="loader" style="margin: 0 auto;">
@@ -60,41 +70,87 @@
     <h5 class="text-primary">Your form information was successfully registered.</h5>
     <h6 class="text-dark" style="margin-bottom:25px">Your form was referred to the relevant unit, after the final review, the result will be sent to you.</h6>
     <h4 class="text-danger" style="margin:auto;padding:20px;background-color:lightgray;width:auto;border-radius:5px;max-width:400px">Tracking Code: <span style="font-size:25px" class="text-primary" id="TRCD"></span></h4>
+    <div style="width:auto;display:inline-block;text-align:center;">
+        <a class="btn btn-primary center" href="#" id="RedirectBtn" style="display:none;margin-top:30px;font-size:14px">Finished</a>
+    </div>
     <div style="width:100%;height:50px"></div>
+</div>
+<div class="modal fade text-center" id="MQRModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-sm" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-primary white" style="border-radius:7px 7px 0px 0px">
+                <h5 class="modal-title">Please Scan QR Code ...</h5>
+            </div>
+            <div class="modal-body">
+                <img id="MQRModal_IMG" src="" style="width:300px;height:300px;padding:10px;border:1px darkgray solid;border-radius:5px" />
+                <hr style="width:100%"/>
+                <div id="MQRModal_Text" style="margin-top:10px;text-align:justify;justify-content:left"></div>
+            </div>
+            <div class="modal-footer" style="opacity:1;pointer-events:auto">
+                <button type="button" class="btn btn-primary" id="MQRModal_CIB" onclick="IDV_QR_CRACC()" style="display:none">Upload from this device</button>
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
 </div>
 @section JSScript {
     <script>
-        function AllElements_Hide() { var DivHide = document.getElementsByClassName('GIC_LNT_Hide'); for (var i = 0; i < DivHide.length; i++) { var SelDiv = DivHide[i]; SelDiv.style.display = "none"; }; }
-        function AllElements_Show() { var DivHide = document.getElementsByClassName('GIC_LNT_Hide'); for (var i = 0; i < DivHide.length; i++) { var SelDiv = DivHide[i]; SelDiv.style.display = "Block"; }; }
-        function Submit_Form() { document.getElementById('iFrame_GIC').contentWindow.Submit_Form(); }
-        function Reset_Form() { document.getElementById('iFrame_GIC').contentWindow.Reset_Form(); }
+        var PGNS = 0;
+        function IDVPacific_AllElements_Hide() { var DivHide = document.getElementsByClassName('GIC_LNT_Hide'); for (var i = 0; i < DivHide.length; i++) { var SelDiv = DivHide[i]; SelDiv.style.display = "none"; }; }
+        function IDVPacific_AllElements_Show() { var DivHide = document.getElementsByClassName('GIC_LNT_Hide'); for (var i = 0; i < DivHide.length; i++) { var SelDiv = DivHide[i]; SelDiv.style.display = "Block"; }; }
+        function Submit_Form() { document.getElementById('iFrame_GIC').contentWindow.IDVPacific_Submit_Form('@ViewBag.ParameterValue'); }
+        function Reset_Form() { document.getElementById('iFrame_GIC').contentWindow.IDVPacific_Reset_Form(); }
         function Reload_Form() { document.getElementById('iFrame_GIC').contentWindow.location.reload(true); }
-        function iFrm_AutoHeight() { var ifrm = document.getElementById('iFrame_GIC'); var bodyheight = ifrm.contentWindow.document.getElementById("bodyelmnt").offsetHeight; ifrm.style.height = bodyheight + "px"; ifrm.style.display = "block"; }
-        function MovetoUP() { $("html, body").animate({ scrollTop: 0 }, "fast"); }
+        function IDVPacific_Page_AutoHeight() { var ifrm = document.getElementById('iFrame_GIC'); var bodyheight = ifrm.contentWindow.document.getElementById("bodyelmnt").offsetHeight; ifrm.style.height = bodyheight + 130 + "px"; ifrm.style.display = "block"; }
+        function IDVPacific_MovetoUP() { $("html, body").animate({ scrollTop: 0 }, "fast"); }
         function ReReadeyPage() {
             document.getElementById('Btn_FormController').style.opacity = "1";
             document.getElementById('Btn_FormController').style.pointerEvents = "auto";
             document.getElementById('WatingDIV').style.display = "none";
             document.getElementById('FinishedDIV').style.display = "none";
             document.getElementById('iFrame_GIC').style.display = "block";
-            iFrm_AutoHeight();
+            IDVPacific_Page_AutoHeight();
         }
-        function SendMessageParent(Text, Title, SendType) { ReReadeyPage(); switch (SendType) { case 'E': { toastr.error(Text, Title, { "showMethod": "slideDown", "hideMethod": "slideUp", positionClass: 'toast-bottom-right', "progressBar": true, "closeButton": true, "timeOut": 8000 }); break; } case 'W': { toastr.warning(Text, Title, { "showMethod": "slideDown", "hideMethod": "slideUp", positionClass: 'toast-bottom-right', "progressBar": true, "closeButton": true, "timeOut": 8000 }); break; } case 'S': { toastr.success(Text, Title, { "showMethod": "slideDown", "hideMethod": "slideUp", positionClass: 'toast-bottom-right', "progressBar": true, "closeButton": true, "timeOut": 8000 }); break; } } }
-        function WaitingPage() {
+        function IDVPacific_SendMessageParent(Text, Title, SendType) { ReReadeyPage(); switch (SendType) { case 'E': { toastr.error(Text, Title, { "showMethod": "slideDown", "hideMethod": "slideUp", positionClass: 'toast-bottom-right', "progressBar": true, "closeButton": true, "timeOut": 8000 }); break; } case 'W': { toastr.warning(Text, Title, { "showMethod": "slideDown", "hideMethod": "slideUp", positionClass: 'toast-bottom-right', "progressBar": true, "closeButton": true, "timeOut": 8000 }); break; } case 'S': { toastr.success(Text, Title, { "showMethod": "slideDown", "hideMethod": "slideUp", positionClass: 'toast-bottom-right', "progressBar": true, "closeButton": true, "timeOut": 8000 }); break; } } }
+        function IDVPacific_WaitingPage() {
+            var SecPINF = "@ViewBag.SectionAsPage";
             window.scrollTo(0, 0);
-            document.getElementById('Btn_FormController').style.opacity = "0.7";
-            document.getElementById('Btn_FormController').style.pointerEvents = "none";
+            try { document.getElementById('Btn_FormController').style.opacity = "0.7"; document.getElementById('Btn_FormController').style.pointerEvents = "none"; } catch (e) { }
             document.getElementById('FinishedDIV').style.display = "none";
             document.getElementById('iFrame_GIC').style.display = "none";
             document.getElementById('WatingDIV').style.display = "block";
         }
-        function Finished(TCID) {
+        function IDVPacific_Finished(TCID) {
+            document.getElementById('RedirectBtn').style.display = "none";
+            var Redirect_AfterSubmit = '@ViewBag.Redirect_AfterSubmit';
+            var Redirect_Auto = '@ViewBag.Redirect_Auto';
+            var Redirect_BtnCaption = '@ViewBag.Redirect_BtnCaption';
+            var Redirect_URL = '@ViewBag.Redirect_URL';
+            Redirect_URL = Redirect_URL.replace(/{TrackingCode}/g, TCID);
+            Redirect_URL = Redirect_URL.replace(/amp;/g, "");
+            if (Redirect_AfterSubmit == "1") {
+                if (Redirect_Auto == "1") {
+                    window.location = Redirect_URL;
+                    return;
+                }
+                else {
+                    document.getElementById('RedirectBtn').innerText = Redirect_BtnCaption;
+                    document.getElementById('RedirectBtn').href = Redirect_URL;
+                    document.getElementById('RedirectBtn').style.display = "block";
+                }
+            }
             window.scrollTo(0, 0);
             document.getElementById('TRCD').innerText = TCID;
-            document.getElementById('Btn_FormController').style.display = "none";
+            try { document.getElementById('Btn_FormController').style.display = "none"; } catch (e) { } 
             document.getElementById('iFrame_GIC').style.display = "none";
             document.getElementById('WatingDIV').style.display = "none";
             document.getElementById('FinishedDIV').style.display = "Block";
         }
+        function IDV_GetWindowsScroll() { try { PGNS = window.pageYOffset || document.documentElement.scrollTop; } catch (e) { PGNS = 0; } }
+        function IDV_Scroll() { try { window.scrollTo({ top: PGNS, behavior: 'smooth' }); } catch (e) { PGNS = 0; window.scrollTo({ top: PGNS, behavior: 'smooth' }); } }
+        function IDV_ScrollTop() { PGNS = 0; window.scrollTo({ top: PGNS }); }
+        function IDV_ShowQR() { $('#MQRModal').modal('show'); }
+        function IDV_HideQR() { $('#MQRModal').modal('hide'); }
+        function IDV_QR_CRACC() { document.getElementById('iFrame_GIC').contentWindow.IDV_STartGCMBTN(); }
     </script>
 }

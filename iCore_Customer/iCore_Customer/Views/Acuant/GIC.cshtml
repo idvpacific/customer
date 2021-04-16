@@ -231,10 +231,10 @@
                 };
                 document.getElementById('IMG_Result').src = result.image.data;
                 currentResult = result.image.data;
-                parent.GIC_CallBack("2");
+                parent.IDV_GIC_CallBack("2");
             }
         }
-        function CancelCapture() { parent.GIC_CallBack("1"); }
+        function CancelCapture() { parent.IDV_GIC_CallBack("1"); }
         var modal = document.getElementById("acuant-modal");
         var span = document.getElementsByClassName("close")[0];
         span.onclick = function () { closeCamera(); modal.style.display = "none"; }

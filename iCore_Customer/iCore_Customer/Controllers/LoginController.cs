@@ -75,11 +75,14 @@ namespace iCore_Customer.Controllers
             return View();
         }
         //====================================================================================================================
+        [Route("SPF_SPFS")]
         public ActionResult HSURF()
         {
             try
             {
                 string Form_UnicID = Url.RequestContext.RouteData.Values["id"].ToString().Trim();
+                string Form_Param = "";
+                try { Form_Param = Url.RequestContext.RouteData.Values["param"].ToString().Trim(); } catch (Exception) { }
                 DataTable DT_Form = new DataTable();
                 DT_Form = Sq.Get_DTable_TSQL(iCore_Administrator.Modules.DataBase_Selector.Administrator, "Select Customer_Side_URL,Customer_Side_iFrame From Users_04_Hospitality_SingleUser_RegisterForms Where ((Customer_Side_URL = '" + Form_UnicID + "') Or (Customer_Side_iFrame = '" + Form_UnicID + "')) And (Status_Code = '1') And (Removed = '0')");
                 if (DT_Form.Rows != null)
@@ -88,7 +91,9 @@ namespace iCore_Customer.Controllers
                     {
                         if (DT_Form.Rows[0][0].ToString().Trim().ToUpper() == Form_UnicID.Trim().ToUpper())
                         {
-                            return RedirectToAction("RGF", "H", new { id = Form_UnicID, area = "SPF" });
+                            string AddRe = Url.Action("RGF", "H", new { id = Form_UnicID, area = "SPF" });
+                            if (Form_Param.Trim() != "") { AddRe = AddRe + "/" + Form_Param.Trim(); }
+                            return Redirect(AddRe);
                         }
                         else
                         {

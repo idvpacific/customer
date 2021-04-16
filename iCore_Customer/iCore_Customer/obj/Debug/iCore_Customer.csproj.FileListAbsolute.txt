@@ -89,3 +89,8 @@ E:\01- Project\04- Customer Portal\01- Source\iCore_Customer\iCore_Customer\obj\
 E:\01- Project\04- Customer Portal\01- Source\iCore_Customer\iCore_Customer\bin\RestSharp.dll
 E:\01- Project\04- Customer Portal\01- Source\iCore_Customer\iCore_Customer\bin\RestSharp.xml
 E:\01- Project\04- Customer Portal\01- Source\iCore_Customer\iCore_Customer\bin\AssureTec.AssureID.Web.SDK.dll
+E:\01- Project\04- Customer Portal\01- Source\iCore_Customer\iCore_Customer\bin\zxing.dll
+E:\01- Project\04- Customer Portal\01- Source\iCore_Customer\iCore_Customer\bin\zxing.presentation.dll
+E:\01- Project\04- Customer Portal\01- Source\iCore_Customer\iCore_Customer\bin\zxing.xml
+E:\01- Project\04- Customer Portal\01- Source\iCore_Customer\iCore_Customer\bin\zxing.presentation.xml
+E:\01- Project\04- Customer Portal\01- Source\iCore_Customer\iCore_Customer\obj\Debug\iCore_Customer.csprojAssemblyReference.cache
