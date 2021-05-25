@@ -22,6 +22,11 @@
             return false;
         }
     }
+    string SectionAsPage_Display = "block";
+    if (ViewBag.SectionAsPage == "1") { SectionAsPage_Display = "none"; }
+    int Section_Index_ID = 0;
+    string SecWidthAsPage = "12";
+    string SecDisplayCondition = "block";
 }
 <!DOCTYPE html>
 <html class="loading" lang="en" data-textdirection="ltr">
@@ -159,6 +164,18 @@
 
         .AMQRADD {
         }
+
+        .SecAsPage {
+        }
+
+        .FramePageID {
+        }
+
+        .SelectFrameG {
+        }
+
+        .SelectElementG {
+        }
     </style>
 </head>
 <body style="padding-left:0px;padding-right:0px">
@@ -169,9 +186,42 @@
         <form class="form-inline col-lg-12" style="padding-left:0px;padding-right:0px" id="Page_Master">
             @if (ViewBag.DT_Sections != null)
             {
+                if (ViewBag.SectionAsPage == "1")
+                {
+                    // Header Progressbar Section as page :
+                    <section class="col-lg-12" style="margin-top:10px">
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <div class="card">
+                                    <div class="card-content">
+                                        <div class="card-body form-inline" style="margin-top:15px">
+                                            <div class="col-lg-12" style="text-align:center">
+                                                <div class="progress progress-bar-primary progress-xl">
+                                                    <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width:0%" id="SecPage_Prog">0 %</div>
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-12" style="text-align:left">
+                                                <h6 class="text-italic">You are on page <span class="text-primary text-bold-600" style="font-size:16px" id="SecPageCntN">[ Pending ]</span> of <span class="text-danger text-bold-600" style="font-size:16px" id="SecPageCntA">[ Pending ]</span> total page</h6>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                }
                 foreach (System.Data.DataRow RW in ViewBag.DT_Sections)
                 {
-                    <section id="Frame_ID_@RW[0].ToString().Trim()" class="col-lg-@RW[1].ToString().Trim()">
+                    Section_Index_ID++;
+                    if (ViewBag.SectionAsPage == "1") { SecWidthAsPage = "12"; } else { SecWidthAsPage = RW[1].ToString().Trim(); }
+                    SecDisplayCondition = "block";
+                    if (RW[4].ToString().Trim() == "2") { SecDisplayCondition = "none"; } else { SecDisplayCondition = SectionAsPage_Display; }
+                    <section id="FrameID_@Section_Index_ID" class="col-lg-@SecWidthAsPage SecAsPage FramePageID" style="display:@SecDisplayCondition">
+                        <input type="hidden" id="Sec_@RW[0].ToString().Trim()_ID" value="@RW[0].ToString().Trim()" />
+                        <input type="hidden" id="Sec_@RW[0].ToString().Trim()_Display" value="@RW[4].ToString().Trim()" />
+                        <input type="hidden" id="Sec_@RW[0].ToString().Trim()_FrameID" value="FrameID_@Section_Index_ID" />
+                        <input type="hidden" id="Sec_FrameID_@Section_Index_ID" value="@RW[0].ToString().Trim()" />
+                        <input type="hidden" id="SecDef_FrameID_@Section_Index_ID" class="SelectFrameG" value="@Section_Index_ID-@RW[0].ToString().Trim()-@RW[4].ToString().Trim()" />
                         <div class="row">
                             <div class="col-12">
                                 <div class="card">
@@ -207,13 +257,17 @@
                                                         string QRSV6 = "1";
                                                         string URL_UID = "0";
                                                         string ImgSource = "";
+                                                        string ElementDis = "none";
+                                                        string ElementDiCode = "2";
                                                         foreach (System.Data.DataRow ElRw in DT_Element.Rows)
                                                         {
                                                             try
                                                             {
                                                                 ClsElmn = "";
+                                                                ElementDis = "none"; ElementDiCode = "2";
+                                                                if (ElRw[112].ToString().Trim() == "1") { ElementDis = "block"; ElementDiCode = "1"; }
                                                                 if ((ElRw[3].ToString().Trim() == "1") || (ElRw[3].ToString().Trim() == "2") || (ElRw[3].ToString().Trim() == "3") || (ElRw[3].ToString().Trim() == "4") || (ElRw[3].ToString().Trim() == "5") || (ElRw[3].ToString().Trim() == "6") || (ElRw[3].ToString().Trim() == "10")) { ClsElmn = "ELMT"; }
-                                                                <div class="col-lg-@ElRw[7].ToString().Trim()" id="ELMNT_@ElRw[0].ToString().Trim()_@ElRw[3].ToString().Trim()" style="margin-top:10px">
+                                                                <div class="col-lg-@ElRw[7].ToString().Trim()" id="ELMNT_@ElRw[0].ToString().Trim()_@ElRw[3].ToString().Trim()" style="margin-top:10px;display:@ElementDis">
                                                                     @{
                                                                         switch (ElRw[3].ToString().Trim())
                                                                         {
@@ -370,12 +424,12 @@
                                                                                             {
                                                                                                 case "1":
                                                                                                     {
-                                                                                                        <input type="@InputType" class="form-control @ClsElmn @IT_Class @GoogleSugAddress" onfocus="@OnFocus_GoogleAdd" id="ELI_@ElRw[0].ToString().Trim()" placeholder="@ElRw[33].ToString().Trim()" style="width:100%;font-size:@ElRw[45].ToString().Trim()@PXS;text-align:@TxtAlign;font-weight:@FW;font-style:@FS" maxlength="@ElRw[46].ToString().Trim()" @MinDate_Tag @MaxDate_Tag @DateTime_Tag value="@Def_Value">
+                                                                                                        <input type="@InputType" class="form-control @ClsElmn @IT_Class @GoogleSugAddress" onfocus="@OnFocus_GoogleAdd" id="ELI_@ElRw[0].ToString().Trim()" placeholder="@ElRw[33].ToString().Trim()" style="width:100%;font-size:@ElRw[45].ToString().Trim()@PXS;text-align:@TxtAlign;font-weight:@FW;font-style:@FS" maxlength="@ElRw[46].ToString().Trim()" @MinDate_Tag @MaxDate_Tag @DateTime_Tag value="@Def_Value" onfocusout="ConditionsCheck('@ElRw[0].ToString().Trim()', this.value)">
                                                                                                         break;
                                                                                                     }
                                                                                                 case "2":
                                                                                                     {
-                                                                                                        <input type="@InputType" class="form-control @ClsElmn @IT_Class @GoogleSugAddress" onfocus="@OnFocus_GoogleAdd" oninput="this.value = this.value.replace(/[^0-9]/g, '').replace(/(\..*)\./g, '$1');" id="ELI_@ElRw[0].ToString().Trim()" placeholder="@ElRw[33].ToString().Trim()" style="width:100%;font-size:@ElRw[45].ToString().Trim()@PXS;text-align:@TxtAlign;font-weight:@FW;font-style:@FS" maxlength="@ElRw[46].ToString().Trim()" value="@Def_Value">
+                                                                                                        <input type="@InputType" class="form-control @ClsElmn @IT_Class @GoogleSugAddress" onfocus="@OnFocus_GoogleAdd" oninput="this.value = this.value.replace(/[^0-9]/g, '').replace(/(\..*)\./g, '$1');" id="ELI_@ElRw[0].ToString().Trim()" placeholder="@ElRw[33].ToString().Trim()" style="width:100%;font-size:@ElRw[45].ToString().Trim()@PXS;text-align:@TxtAlign;font-weight:@FW;font-style:@FS" maxlength="@ElRw[46].ToString().Trim()" value="@Def_Value" onfocusout="ConditionsCheck('@ElRw[0].ToString().Trim()', this.value)">
                                                                                                         break;
                                                                                                     }
                                                                                             }
@@ -387,12 +441,12 @@
                                                                                             {
                                                                                                 case "1":
                                                                                                     {
-                                                                                                        <textarea class="form-control @IT_Class @ClsElmn @GoogleSugAddress" id="ELI_@ElRw[0].ToString().Trim()" onfocus="@OnFocus_GoogleAdd" placeholder="@ElRw[33].ToString().Trim()" style="width:100%;font-size:@ElRw[45].ToString().Trim()@PXS;text-align:@TxtAlign;font-weight:@FW;font-style:@FS" maxlength="@ElRw[46].ToString().Trim()">@Def_Value</textarea>
+                                                                                                        <textarea class="form-control @IT_Class @ClsElmn @GoogleSugAddress" id="ELI_@ElRw[0].ToString().Trim()" onfocus="@OnFocus_GoogleAdd" placeholder="@ElRw[33].ToString().Trim()" style="width:100%;font-size:@ElRw[45].ToString().Trim()@PXS;text-align:@TxtAlign;font-weight:@FW;font-style:@FS" maxlength="@ElRw[46].ToString().Trim()" onfocusout="ConditionsCheck('@ElRw[0].ToString().Trim()', this.value)">@Def_Value</textarea>
                                                                                                         break;
                                                                                                     }
                                                                                                 case "2":
                                                                                                     {
-                                                                                                        <textarea class="form-control @IT_Class @ClsElmn @GoogleSugAddress" onfocus="@OnFocus_GoogleAdd" oninput="this.value = this.value.replace(/[^0-9]/g, '').replace(/(\..*)\./g, '$1');" id="ELI_@ElRw[0].ToString().Trim()" placeholder="@ElRw[33].ToString().Trim()" style="width:100%;font-size:@ElRw[45].ToString().Trim()@PXS;text-align:@TxtAlign;font-weight:@FW;font-style:@FS" maxlength="@ElRw[46].ToString().Trim()">@Def_Value</textarea>
+                                                                                                        <textarea class="form-control @IT_Class @ClsElmn @GoogleSugAddress" onfocus="@OnFocus_GoogleAdd" oninput="this.value = this.value.replace(/[^0-9]/g, '').replace(/(\..*)\./g, '$1');" id="ELI_@ElRw[0].ToString().Trim()" placeholder="@ElRw[33].ToString().Trim()" style="width:100%;font-size:@ElRw[45].ToString().Trim()@PXS;text-align:@TxtAlign;font-weight:@FW;font-style:@FS" maxlength="@ElRw[46].ToString().Trim()" onfocusout="ConditionsCheck('@ElRw[0].ToString().Trim()', this.value)">@Def_Value</textarea>
                                                                                                         break;
                                                                                                     }
                                                                                             }
@@ -410,7 +464,7 @@
                                                                                     <input type="hidden" id="Man_EL_@ElRw[0].ToString().Trim()" value="@ElRw[43].ToString().Trim()" />
                                                                                     break;
                                                                                 }
-                                                                            case "2"://Checkboc
+                                                                            case "2"://Checkbox
                                                                                 {
                                                                                     string checkedP = "";
                                                                                     string CheckColor = "primary";
@@ -459,10 +513,9 @@
                                                                                         case "2": { CSize = ""; break; }
                                                                                         case "3": { CSize = "vs-checkbox-lg"; break; }
                                                                                     }
-
                                                                                     <fieldset>
                                                                                         <div class="vs-checkbox-con vs-checkbox-@CheckColor">
-                                                                                            <input type="checkbox" @checkedP class="@ClsElmn" value="false" id="ELC_@ElRw[0].ToString().Trim()">
+                                                                                            <input type="checkbox" @checkedP class="@ClsElmn" value="false" id="ELC_@ElRw[0].ToString().Trim()" onchange="ConditionsCheck('@ElRw[0].ToString().Trim()', this.checked)">
                                                                                             <span class="vs-checkbox @CSize">
                                                                                                 <span class="vs-checkbox--check">
                                                                                                     @if (ElRw[48].ToString().Trim() == "")
@@ -524,7 +577,7 @@
                                                                                                 </div>
                                                                                             </div>
                                                                                         }
-                                                                                        <input type="checkbox" class="custom-control-input @ClsElmn" id="ELO_@ElRw[0].ToString().Trim()" @PreChecked>
+                                                                                        <input type="checkbox" class="custom-control-input @ClsElmn" id="ELO_@ElRw[0].ToString().Trim()" @PreChecked onchange="ConditionsCheck('@ElRw[0].ToString().Trim()', this.checked)">
                                                                                         <label class="custom-control-label" for="ELO_@ElRw[0].ToString().Trim()">
                                                                                             <span class="switch-icon-left"><i class="fa @ElRw[45].ToString().Trim()" style="font-size:@ElRw[38].ToString().Trim()@Pxs"></i></span>
                                                                                             <span class="switch-icon-right"><i class="fa @ElRw[46].ToString().Trim()" style="font-size:@ElRw[38].ToString().Trim()@Pxs"></i></span>
@@ -614,7 +667,7 @@
                                                                                                 }
                                                                                                 <fieldset class="@ColSz">
                                                                                                     <div class="vs-radio-con vs-radio-@LstColor" style="padding-left:10px">
-                                                                                                        <input type="radio" class="@ClsElmn" name="RD_N_@ElRw[0].ToString().Trim()" id="ELR_@ElRw[0].ToString().Trim()@Unln@i" @RadCheck value="false">
+                                                                                                        <input type="radio" class="@ClsElmn" name="RD_N_@ElRw[0].ToString().Trim()" id="ELR_@ElRw[0].ToString().Trim()@Unln@i" @RadCheck value="@i" onchange="ConditionsCheck('@ElRw[0].ToString().Trim()', $('input[name=RD_N_@ElRw[0].ToString().Trim()]:checked').val())">
                                                                                                         <span class="vs-radio @RadioSize">
                                                                                                             <span class="vs-radio--border"></span>
                                                                                                             <span class="vs-radio--circle"></span>
@@ -1619,6 +1672,14 @@
                                                                                 }
                                                                         }
                                                                     }
+                                                                    <input type="hidden" id="ELI_@ElRw[0].ToString().Trim()_HCFR" value="@Pb.TestElemenetCondition(ViewBag.ElementsConID, ElRw[0].ToString().Trim())" />
+                                                                    <input type="hidden" id="ELI_@ElRw[0].ToString().Trim()_SectionID" value="@RW[0].ToString().Trim()" />
+                                                                    <input type="hidden" id="ELI_@ElRw[0].ToString().Trim()_FrameID" value="FrameID_@Section_Index_ID" />
+                                                                    <input type="hidden" id="ELI_@ElRw[0].ToString().Trim()_ElementID" value="@ElRw[0].ToString().Trim()" />
+                                                                    <input type="hidden" id="ELI_@ElRw[0].ToString().Trim()_Display" value="@ElementDiCode" />
+                                                                    <input type="hidden" id="ELI_@ElRw[0].ToString().Trim()_BoxID" value="ELMNT_@ElRw[0].ToString().Trim()_@ElRw[3].ToString().Trim()" />
+                                                                    <input type="hidden" id="ELI_@ElRw[0].ToString().Trim()_Validate" value="0" />
+                                                                    <input type="hidden" id="ELI_@ElRw[0].ToString().Trim()_DisDef" class="SelectElementG" value="@ElRw[0].ToString().Trim()-@ElRw[112].ToString().Trim()" />
                                                                     @if ((ElRw[26].ToString().Trim() != "") || (ElRw[27].ToString().Trim() != ""))
                                                                     {
                                                                         <div>
@@ -1680,6 +1741,31 @@
                                                 }
                                                 catch (Exception) { }
                                             }
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                }
+                if (ViewBag.SectionAsPage == "1")
+                {
+                    // Footer Bottun Section as page :
+                    <section class="col-lg-12">
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <div class="card">
+                                    <div class="card-content">
+                                        <div class="card-body form-inline" style="margin-top:-15px">
+                                            <div class="col-lg-6" style="text-align:left;margin-top:15px">
+                                                <a class="btn btn-outline-dark" href="Javascript:void()" onclick="IDV_FPageS()" style="margin-top:10px">First Page</a>
+                                                <a class="btn btn-outline-warning" href="Javascript:void()" onclick="IDV_BKPageS()" style="margin-top:10px;margin-left:5px">Back</a>
+                                            </div>
+                                            <div class="col-lg-6" style="text-align:right;margin-top:15px">
+                                                <a class="btn btn-success" href="Javascript:void()" onclick="IDV_SecPageSub()" style="margin-top:10px;display:none;" id="IDV_Btn_S"><i class="fa fa-check"></i> Submit</a>
+                                                <a class="btn btn-primary" href="Javascript:void()" onclick="IDV_FWPageS()" style="margin-top:10px;display:inline;margin-right:5px" id="IDV_Btn_N">Next Page</a>
+                                                <a class="btn btn-outline-dark" href="Javascript:void()" onclick="IDV_LPageS()" style="margin-top:10px;display:inline;" id="IDV_Btn_L">Last Page</a>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -1851,142 +1937,152 @@
             catch (Exception) { }
         }
     }
-<script>
-    var V1 = ""; var V2 = ""; var V3 = ""; var V4 = ""; var V5 = ""; var V6 = ""; var V7 = ""; var FVR = "";
-    var autocomplete; var UIP = ""; var myVar;
-    $(".select2").select2({ dropdownAutoWidth: true, width: '100%' });
-    function IDV_ShowRealSize(BaseIMGC) { var modalImg = document.getElementById("IMGBaseZoom"); modalImg.src = BaseIMGC.src; $('#IMGZoomEmas').modal('show'); }
-    function IDV_StartGCCAA(WID, VV1, VV2, VV3, VV4, VV5, VV6, VV7) {
-        parent.IDV_GetWindowsScroll();
-        try {
-            V1 = ""; V2 = ""; V3 = ""; V4 = ""; V5 = ""; V6 = ""; V7 = "";
-            if (WID == '1') {
-                document.getElementById(VV1).src = "";
-                document.getElementById(VV2).value = "0";
-                document.getElementById('iFrameAC').src = "@Url.Action("GIC", "Acuant", new { id="", area= "" })";
-            }
-            else {
-                document.getElementById(VV1).value = "Wait for result";
-                document.getElementById(VV2).value = "0 %";
-                document.getElementById(VV3).value = "";
-                document.getElementById(VV4).value = "";
-                document.getElementById(VV5).value = "";
-                document.getElementById(VV6).value = "";
-                document.getElementById(VV7).value = "";
-                document.getElementById('iFrameAC').src = "@Url.Action("LNT", "Acuant", new { id="", area= "" })";
-            }
-            V1 = VV1; V2 = VV2; V3 = VV3; V4 = VV4; V5 = VV5; V6 = VV6; V7 = VV7;
-            parent.IDVPacific_AllElements_Hide();
-            parent.IDVPacific_MovetoUP();
-            document.getElementById('Page_Master').style.display = "none";
-            document.getElementById('Page_iFrame').style.display = "block";
-        } catch (e) {
-            document.getElementById('Page_iFrame').style.display = "none";
-            document.getElementById('iFrameAC').src = "";
-            if (WID == '1') {
-                document.getElementById(VV1).src = "";
-                document.getElementById(VV2).value = "0";
-            }
-            else {
-                document.getElementById(VV1).value = "Wait for result";
-                document.getElementById(VV2).value = "0 %";
-                document.getElementById(VV3).value = "";
-                document.getElementById(VV4).value = "";
-                document.getElementById(VV5).value = "";
-                document.getElementById(VV6).value = "";
-                document.getElementById(VV7).value = "";
-            }
-            V1 = ""; V2 = ""; V3 = ""; V4 = ""; V5 = ""; V6 = ""; V7 = "";
-            parent.IDVPacific_AllElements_Show();
-            document.getElementById('Page_Master').style.display = "flex";
-        }
-        parent.IDVPacific_Page_AutoHeight();
-    }
-    function IDV_StartGC(AMEID, WID, VV1, VV2, VV3, VV4, VV5, VV6, VV7) {
-        var isMobileBRW = "@IsMobileBrowser";
-        if (isMobileBRW.toLowerCase() == "false") {
+    <script>
+        var V1 = ""; var V2 = ""; var V3 = ""; var V4 = ""; var V5 = ""; var V6 = ""; var V7 = ""; var FVR = ""; var autocomplete; var UIP = ""; var myVar; var PageN = 0; var PageC = @Section_Index_ID; var FSAP = "@ViewBag.SectionAsPage";
+        $(".select2").select2({ dropdownAutoWidth: true, width: '100%' });
+        function IDV_ShowRealSize(BaseIMGC) { var modalImg = document.getElementById("IMGBaseZoom"); modalImg.src = BaseIMGC.src; $('#IMGZoomEmas').modal('show'); }
+        function IDV_StartGCCAA(WID, VV1, VV2, VV3, VV4, VV5, VV6, VV7) {
+            parent.IDV_GetWindowsScroll();
             try {
-                var QR_Modal_Access = "0";
-                var Cross_Modal_Access = "0";
-                try { QR_Modal_Access = document.getElementById('EL_QRACC_' + AMEID).value.trim(); } catch (e) { QR_Modal_Access = "0"; }
-                try { Cross_Modal_Access = document.getElementById('EL_CACC_' + AMEID).value.trim(); } catch (e) { Cross_Modal_Access = "0"; }
-                if ((QR_Modal_Access == "0") && (Cross_Modal_Access == "0")) {
-                    IDV_SendMessage('You do not have permission to use this section on this device! [C02]', 'E');
-                    parent.IDV_HideQR();
-                    return;
+                V1 = ""; V2 = ""; V3 = ""; V4 = ""; V5 = ""; V6 = ""; V7 = "";
+                if (WID == '1') {
+                    document.getElementById(VV1).src = "";
+                    document.getElementById(VV2).value = "0";
+                    document.getElementById('iFrameAC').src = "@Url.Action("GIC", "Acuant", new { id="", area= "" })";
                 }
                 else {
-                    if (QR_Modal_Access != "0") {
+                    document.getElementById(VV1).value = "Wait for result";
+                    document.getElementById(VV2).value = "0 %";
+                    document.getElementById(VV3).value = "";
+                    document.getElementById(VV4).value = "";
+                    document.getElementById(VV5).value = "";
+                    document.getElementById(VV6).value = "";
+                    document.getElementById(VV7).value = "";
+                    document.getElementById('iFrameAC').src = "@Url.Action("LNT", "Acuant", new { id="", area= "" })";
+                }
+                V1 = VV1; V2 = VV2; V3 = VV3; V4 = VV4; V5 = VV5; V6 = VV6; V7 = VV7;
+                parent.IDVPacific_AllElements_Hide();
+                parent.IDVPacific_MovetoUP();
+                document.getElementById('Page_Master').style.display = "none";
+                document.getElementById('Page_iFrame').style.display = "block";
+            } catch (e) {
+                document.getElementById('Page_iFrame').style.display = "none";
+                document.getElementById('iFrameAC').src = "";
+                if (WID == '1') {
+                    document.getElementById(VV1).src = "";
+                    document.getElementById(VV2).value = "0";
+                }
+                else {
+                    document.getElementById(VV1).value = "Wait for result";
+                    document.getElementById(VV2).value = "0 %";
+                    document.getElementById(VV3).value = "";
+                    document.getElementById(VV4).value = "";
+                    document.getElementById(VV5).value = "";
+                    document.getElementById(VV6).value = "";
+                    document.getElementById(VV7).value = "";
+                }
+                V1 = ""; V2 = ""; V3 = ""; V4 = ""; V5 = ""; V6 = ""; V7 = "";
+                parent.IDVPacific_AllElements_Show();
+                document.getElementById('Page_Master').style.display = "flex";
+            }
+            parent.IDVPacific_Page_AutoHeight();
+        }
+        function IDV_StartGC(AMEID, WID, VV1, VV2, VV3, VV4, VV5, VV6, VV7) {
+            var isMobileBRW = "@IsMobileBrowser";
+            if (isMobileBRW.toLowerCase() == "false") {
+                try {
+                    var QR_Modal_Access = "0";
+                    var Cross_Modal_Access = "0";
+                    try { QR_Modal_Access = document.getElementById('EL_QRACC_' + AMEID).value.trim(); } catch (e) { QR_Modal_Access = "0"; }
+                    try { Cross_Modal_Access = document.getElementById('EL_CACC_' + AMEID).value.trim(); } catch (e) { Cross_Modal_Access = "0"; }
+                    if ((QR_Modal_Access == "0") && (Cross_Modal_Access == "0")) {
+                        IDV_SendMessage('You do not have permission to use this section on this device! [C02]', 'E');
                         parent.IDV_HideQR();
-                        document.getElementById('QRModal_UID').value = document.getElementById('EL_QRUID_' + AMEID).value.trim();
-                        document.getElementById('QRModal_WID').value = WID;
-                        document.getElementById('QRModal_V1').value = VV1;
-                        document.getElementById('QRModal_V2').value = VV2;
-                        document.getElementById('QRModal_V3').value = VV3;
-                        document.getElementById('QRModal_V4').value = VV4;
-                        document.getElementById('QRModal_V5').value = VV5;
-                        document.getElementById('QRModal_V6').value = VV6;
-                        document.getElementById('QRModal_V7').value = VV7;
-                        if (WID == '1') { document.getElementById('QRModal_Text').innerText = "To capture photos of your ID card you must scan the QR code using your phone camera. Images will be attached to your form automatically."; } else { document.getElementById('QRModal_Text').innerText = "To capture photos of your selfie you must scan the QR code using your phone camera. Images will be attached to your form automatically."; }
-                        document.getElementById('QRModal_IMG').src = document.getElementById('EL_QRVLU_' + AMEID).value.trim();
-                        document.getElementById('QRModal_CIB').style.display = "none";
-                        if (Cross_Modal_Access == "1") { document.getElementById('QRModal_CIB').style.display = "block"; }
-                        parent.document.getElementById('MQRModal_CIB').style.display = "none";
-                        parent.document.getElementById('MQRModal_IMG').src = "";
-                        parent.document.getElementById('MQRModal_Text').innerText = "";
-                        parent.document.getElementById('MQRModal_CIB').style.display = document.getElementById('QRModal_CIB').style.display;
-                        parent.document.getElementById('MQRModal_IMG').src = document.getElementById('QRModal_IMG').src;
-                        parent.document.getElementById('MQRModal_Text').innerText = document.getElementById('QRModal_Text').innerText;
-                        parent.IDV_ShowQR();
+                        return;
                     }
                     else {
-                        parent.IDV_HideQR();
-                        document.getElementById('QRModal_UID').value = "";
-                        document.getElementById('QRModal_WID').value = "";
-                        document.getElementById('QRModal_V1').value = "";
-                        document.getElementById('QRModal_V2').value = "";
-                        document.getElementById('QRModal_V3').value = "";
-                        document.getElementById('QRModal_V4').value = "";
-                        document.getElementById('QRModal_V5').value = "";
-                        document.getElementById('QRModal_V6').value = "";
-                        document.getElementById('QRModal_V7').value = "";
-                        IDV_StartGCCAA(WID, VV1, VV2, VV3, VV4, VV5, VV6, VV7);
+                        if (QR_Modal_Access != "0") {
+                            parent.IDV_HideQR();
+                            document.getElementById('QRModal_UID').value = document.getElementById('EL_QRUID_' + AMEID).value.trim();
+                            document.getElementById('QRModal_WID').value = WID;
+                            document.getElementById('QRModal_V1').value = VV1;
+                            document.getElementById('QRModal_V2').value = VV2;
+                            document.getElementById('QRModal_V3').value = VV3;
+                            document.getElementById('QRModal_V4').value = VV4;
+                            document.getElementById('QRModal_V5').value = VV5;
+                            document.getElementById('QRModal_V6').value = VV6;
+                            document.getElementById('QRModal_V7').value = VV7;
+                            if (WID == '1') { document.getElementById('QRModal_Text').innerText = "To capture photos of your ID card you must scan the QR code using your phone camera. Images will be attached to your form automatically."; } else { document.getElementById('QRModal_Text').innerText = "To capture photos of your selfie you must scan the QR code using your phone camera. Images will be attached to your form automatically."; }
+                            document.getElementById('QRModal_IMG').src = document.getElementById('EL_QRVLU_' + AMEID).value.trim();
+                            document.getElementById('QRModal_CIB').style.display = "none";
+                            if (Cross_Modal_Access == "1") { document.getElementById('QRModal_CIB').style.display = "block"; }
+                            parent.document.getElementById('MQRModal_CIB').style.display = "none";
+                            parent.document.getElementById('MQRModal_IMG').src = "";
+                            parent.document.getElementById('MQRModal_Text').innerText = "";
+                            parent.document.getElementById('MQRModal_CIB').style.display = document.getElementById('QRModal_CIB').style.display;
+                            parent.document.getElementById('MQRModal_IMG').src = document.getElementById('QRModal_IMG').src;
+                            parent.document.getElementById('MQRModal_Text').innerText = document.getElementById('QRModal_Text').innerText;
+                            parent.IDV_ShowQR();
+                        }
+                        else {
+                            parent.IDV_HideQR();
+                            document.getElementById('QRModal_UID').value = "";
+                            document.getElementById('QRModal_WID').value = "";
+                            document.getElementById('QRModal_V1').value = "";
+                            document.getElementById('QRModal_V2').value = "";
+                            document.getElementById('QRModal_V3').value = "";
+                            document.getElementById('QRModal_V4').value = "";
+                            document.getElementById('QRModal_V5').value = "";
+                            document.getElementById('QRModal_V6').value = "";
+                            document.getElementById('QRModal_V7').value = "";
+                            IDV_StartGCCAA(WID, VV1, VV2, VV3, VV4, VV5, VV6, VV7);
+                        }
                     }
+                } catch (e) {
+                    parent.IDV_HideQR();
+                    document.getElementById('QRModal_UID').value = "";
+                    document.getElementById('QRModal_WID').value = "";
+                    document.getElementById('QRModal_V1').value = "";
+                    document.getElementById('QRModal_V2').value = "";
+                    document.getElementById('QRModal_V3').value = "";
+                    document.getElementById('QRModal_V4').value = "";
+                    document.getElementById('QRModal_V5').value = "";
+                    document.getElementById('QRModal_V6').value = "";
+                    document.getElementById('QRModal_V7').value = "";
+                    IDV_SendMessage('An error occurred while processing your request', 'An error has occurred! [C01]', 'E');
+                }
+            }
+            else { IDV_StartGCCAA(WID, VV1, VV2, VV3, VV4, VV5, VV6, VV7); }
+        }
+        function IDV_STartGCMBTN() {
+            try { parent.IDV_HideQR(); } catch (e) { }
+            IDV_StartGCCAA(document.getElementById('QRModal_WID').value.trim(), document.getElementById('QRModal_V1').value.trim(), document.getElementById('QRModal_V2').value.trim(), document.getElementById('QRModal_V3').value.trim(), document.getElementById('QRModal_V4').value.trim(), document.getElementById('QRModal_V5').value.trim(), document.getElementById('QRModal_V6').value.trim(), document.getElementById('QRModal_V7').value.trim());
+            try { document.getElementById('QRModal_UID').value = ""; document.getElementById('QRModal_WID').value = ""; document.getElementById('QRModal_V1').value = ""; document.getElementById('QRModal_V2').value = ""; document.getElementById('QRModal_V3').value = ""; document.getElementById('QRModal_V4').value = ""; document.getElementById('QRModal_V5').value = ""; document.getElementById('QRModal_V6').value = ""; document.getElementById('QRModal_V7').value = ""; } catch (e) { }
+        }
+        function IDV_GIC_CallBack(WID) {
+            try {
+                if (WID == "1") {
+                    document.getElementById('Page_iFrame').style.display = "none";
+                    document.getElementById('iFrameAC').src = "";
+                    document.getElementById(V1).src = "";
+                    document.getElementById(V2).value = "0";
+                    V1 = ""; V2 = ""; V3 = ""; V4 = ""; V5 = ""; V6 = ""; V7 = "";
+                    document.getElementById('Page_Master').style.display = "flex";
+                }
+                else {
+                    document.getElementById(V1).src = "";
+                    document.getElementById(V2).value = "0";
+                    var iframe = document.getElementById('iFrameAC');
+                    var elmnt = iframe.contentWindow.document.getElementById('IMG_Result');
+                    document.getElementById(V1).src = elmnt.src;
+                    document.getElementById(V2).value = "1";
+                    IDV_SLGIC(document.getElementById(V1));
+                    V1 = ""; V2 = ""; V3 = ""; V4 = ""; V5 = ""; V6 = ""; V7 = "";
+                    document.getElementById('Page_iFrame').style.display = "none";
+                    document.getElementById('iFrameAC').src = "";
+                    document.getElementById('Page_Master').style.display = "flex";
                 }
             } catch (e) {
-                parent.IDV_HideQR();
-                document.getElementById('QRModal_UID').value = "";
-                document.getElementById('QRModal_WID').value = "";
-                document.getElementById('QRModal_V1').value = "";
-                document.getElementById('QRModal_V2').value = "";
-                document.getElementById('QRModal_V3').value = "";
-                document.getElementById('QRModal_V4').value = "";
-                document.getElementById('QRModal_V5').value = "";
-                document.getElementById('QRModal_V6').value = "";
-                document.getElementById('QRModal_V7').value = "";
-                IDV_SendMessage('An error occurred while processing your request', 'An error has occurred! [C01]', 'E');
-            }
-        }
-        else { IDV_StartGCCAA(WID, VV1, VV2, VV3, VV4, VV5, VV6, VV7); }
-    }
-    function IDV_STartGCMBTN() {
-        try { parent.IDV_HideQR(); } catch (e) { }
-        IDV_StartGCCAA(document.getElementById('QRModal_WID').value.trim(), document.getElementById('QRModal_V1').value.trim(), document.getElementById('QRModal_V2').value.trim(), document.getElementById('QRModal_V3').value.trim(), document.getElementById('QRModal_V4').value.trim(), document.getElementById('QRModal_V5').value.trim(), document.getElementById('QRModal_V6').value.trim(), document.getElementById('QRModal_V7').value.trim());
-        try {
-            document.getElementById('QRModal_UID').value = "";
-            document.getElementById('QRModal_WID').value = "";
-            document.getElementById('QRModal_V1').value = "";
-            document.getElementById('QRModal_V2').value = "";
-            document.getElementById('QRModal_V3').value = "";
-            document.getElementById('QRModal_V4').value = "";
-            document.getElementById('QRModal_V5').value = "";
-            document.getElementById('QRModal_V6').value = "";
-            document.getElementById('QRModal_V7').value = "";
-        } catch (e) { }
-    }
-    function IDV_GIC_CallBack(WID) {
-        try {
-            if (WID == "1") {
                 document.getElementById('Page_iFrame').style.display = "none";
                 document.getElementById('iFrameAC').src = "";
                 document.getElementById(V1).src = "";
@@ -1994,34 +2090,45 @@
                 V1 = ""; V2 = ""; V3 = ""; V4 = ""; V5 = ""; V6 = ""; V7 = "";
                 document.getElementById('Page_Master').style.display = "flex";
             }
-            else {
-                document.getElementById(V1).src = "";
-                document.getElementById(V2).value = "0";
-                var iframe = document.getElementById('iFrameAC');
-                var elmnt = iframe.contentWindow.document.getElementById('IMG_Result');
-                document.getElementById(V1).src = elmnt.src;
-                document.getElementById(V2).value = "1";
-                IDV_SLGIC(document.getElementById(V1));
-                V1 = ""; V2 = ""; V3 = ""; V4 = ""; V5 = ""; V6 = ""; V7 = "";
-                document.getElementById('Page_iFrame').style.display = "none";
-                document.getElementById('iFrameAC').src = "";
-                document.getElementById('Page_Master').style.display = "flex";
-            }
-        } catch (e) {
-            document.getElementById('Page_iFrame').style.display = "none";
-            document.getElementById('iFrameAC').src = "";
-            document.getElementById(V1).src = "";
-            document.getElementById(V2).value = "0";
-            V1 = ""; V2 = ""; V3 = ""; V4 = ""; V5 = ""; V6 = ""; V7 = "";
-            document.getElementById('Page_Master').style.display = "flex";
+            parent.IDVPacific_AllElements_Show();
+            parent.IDVPacific_Page_AutoHeight();
+            parent.IDV_Scroll();
         }
-        parent.IDVPacific_AllElements_Show();
-        parent.IDVPacific_Page_AutoHeight();
-        parent.IDV_Scroll();
-    }
-    function IDV_LNT_CallBack(WID, IsError, Score, LivenessAssessment, TransactionId, ErrorCode, Error) {
-        try {
-            if (WID == "1") {
+        function IDV_LNT_CallBack(WID, IsError, Score, LivenessAssessment, TransactionId, ErrorCode, Error) {
+            try {
+                if (WID == "1") {
+                    document.getElementById('Page_iFrame').style.display = "none";
+                    document.getElementById('iFrameAC').src = "";
+                    document.getElementById(V1).value = " Wait for result";
+                    document.getElementById(V2).value = "0 %";
+                    document.getElementById(V3).value = "";
+                    document.getElementById(V4).value = "";
+                    document.getElementById(V5).value = "";
+                    document.getElementById(V6).value = "";
+                    document.getElementById(V7).value = "";
+                    V1 = ""; V2 = ""; V3 = ""; V4 = ""; V5 = ""; V6 = ""; V7 = "";
+                    document.getElementById('Page_Master').style.display = "flex";
+                }
+                else {
+                    if (IsError == "0") {
+                        document.getElementById(V1).value = "Done";
+                    }
+                    else {
+                        document.getElementById(V1).value = "Failed";
+                    }
+                    document.getElementById(V2).value = Score + " %";
+                    document.getElementById(V3).value = LivenessAssessment;
+                    document.getElementById(V4).value = Error;
+                    document.getElementById(V5).value = IsError;
+                    document.getElementById(V6).value = ErrorCode;
+                    document.getElementById(V7).value = TransactionId;
+                    IDV_SLLNT(IsError, Score, LivenessAssessment, TransactionId, ErrorCode, Error);
+                    V1 = ""; V2 = ""; V3 = ""; V4 = ""; V5 = ""; V6 = ""; V7 = "";
+                    document.getElementById('Page_iFrame').style.display = "none";
+                    document.getElementById('iFrameAC').src = "";
+                    document.getElementById('Page_Master').style.display = "flex";
+                }
+            } catch (e) {
                 document.getElementById('Page_iFrame').style.display = "none";
                 document.getElementById('iFrameAC').src = "";
                 document.getElementById(V1).value = " Wait for result";
@@ -2034,566 +2141,928 @@
                 V1 = ""; V2 = ""; V3 = ""; V4 = ""; V5 = ""; V6 = ""; V7 = "";
                 document.getElementById('Page_Master').style.display = "flex";
             }
-            else {
-                if (IsError == "0") {
-                    document.getElementById(V1).value = "Done";
-                }
-                else {
-                    document.getElementById(V1).value = "Failed";
-                }
-                document.getElementById(V2).value = Score + " %";
-                document.getElementById(V3).value = LivenessAssessment;
-                document.getElementById(V4).value = Error;
-                document.getElementById(V5).value = IsError;
-                document.getElementById(V6).value = ErrorCode;
-                document.getElementById(V7).value = TransactionId;
-                IDV_SLLNT(IsError, Score, LivenessAssessment, TransactionId, ErrorCode, Error);
-                V1 = ""; V2 = ""; V3 = ""; V4 = ""; V5 = ""; V6 = ""; V7 = "";
-                document.getElementById('Page_iFrame').style.display = "none";
-                document.getElementById('iFrameAC').src = "";
-                document.getElementById('Page_Master').style.display = "flex";
+            parent.IDVPacific_AllElements_Show();
+            parent.IDVPacific_Page_AutoHeight();
+            parent.IDV_Scroll();
+        }
+        function IDV_initAutocomplete() { try { Array.from(document.getElementsByClassName('ELMNTTXTGOOGLE')).forEach(function (element) { autocomplete = new google.maps.places.Autocomplete((element), { types: ['geocode'] }); }); } catch (e) { } }
+        function geolocate() { try { if (navigator.geolocation) { navigator.geolocation.getCurrentPosition(function (position) { var geolocation = { lat: position.coords.latitude, lng: position.coords.longitude }; var circle = new google.maps.Circle({ center: geolocation, radius: position.coords.accuracy }); autocomplete.setBounds(circle.getBounds()); }); } } catch (e) { }  }
+        function debounce(func) { var timer; return function (event) { if (timer) clearTimeout(timer); timer = setTimeout(func, 100, event); }; }
+        window.addEventListener("resize", debounce(function (e) { parent.IDVPacific_Page_AutoHeight(); }));
+        window.addEventListener("load", debounce(function (e) { parent.IDVPacific_Page_AutoHeight(); }));
+        function IDV_GUIP() { var xmlHttp = null; xmlHttp = new XMLHttpRequest(); xmlHttp.open("GET", "https://icanhazip.com", false); xmlHttp.send(null); UIP = xmlHttp.responseText; }
+        function IDV_UBN() {
+            var test = function (regexp) { return regexp.test(window.navigator.userAgent) }
+            switch (true) { case test(/edg/i): return "Microsoft Edge"; case test(/trident/i): return "Microsoft Internet Explorer"; case test(/firefox|fxios/i): return "Mozilla Firefox"; case test(/opr\//i): return "Opera"; case test(/ucbrowser/i): return "UC Browser"; case test(/samsungbrowser/i): return "Samsung Browser"; case test(/chrome|chromium|crios/i): return "Google Chrome"; case test(/safari/i): return "Apple Safari"; default: return "Other"; }
+        }
+        function IDV_base64ToBlob(base64, mime) {
+            mime = mime || '';
+            var sliceSize = 1024;
+            var byteChars = window.atob(base64);
+            var byteArrays = [];
+            for (var offset = 0, len = byteChars.length; offset < len; offset += sliceSize) {
+                var slice = byteChars.slice(offset, offset + sliceSize);
+                var byteNumbers = new Array(slice.length);
+                for (var i = 0; i < slice.length; i++) { byteNumbers[i] = slice.charCodeAt(i); }
+                var byteArray = new Uint8Array(byteNumbers);
+                byteArrays.push(byteArray);
             }
-        } catch (e) {
-            document.getElementById('Page_iFrame').style.display = "none";
-            document.getElementById('iFrameAC').src = "";
-            document.getElementById(V1).value = " Wait for result";
-            document.getElementById(V2).value = "0 %";
-            document.getElementById(V3).value = "";
-            document.getElementById(V4).value = "";
-            document.getElementById(V5).value = "";
-            document.getElementById(V6).value = "";
-            document.getElementById(V7).value = "";
-            V1 = ""; V2 = ""; V3 = ""; V4 = ""; V5 = ""; V6 = ""; V7 = "";
-            document.getElementById('Page_Master').style.display = "flex";
+            return new Blob(byteArrays, { type: mime });
         }
-        parent.IDVPacific_AllElements_Show();
-        parent.IDVPacific_Page_AutoHeight();
-        parent.IDV_Scroll();
-    }
-    function IDV_initAutocomplete() { try { Array.from(document.getElementsByClassName('ELMNTTXTGOOGLE')).forEach(function (element) { autocomplete = new google.maps.places.Autocomplete((element), { types: ['geocode'] }); }); } catch (e) { } }
-    function geolocate() { try { if (navigator.geolocation) { navigator.geolocation.getCurrentPosition(function (position) { var geolocation = { lat: position.coords.latitude, lng: position.coords.longitude }; var circle = new google.maps.Circle({ center: geolocation, radius: position.coords.accuracy }); autocomplete.setBounds(circle.getBounds()); }); } } catch (e) { }  }
-    function debounce(func) { var timer; return function (event) { if (timer) clearTimeout(timer); timer = setTimeout(func, 100, event); }; }
-    window.addEventListener("resize", debounce(function (e) { parent.IDVPacific_Page_AutoHeight(); }));
-    window.addEventListener("load", debounce(function (e) { parent.IDVPacific_Page_AutoHeight(); }));
-    function IDV_GUIP() { var xmlHttp = null; xmlHttp = new XMLHttpRequest(); xmlHttp.open("GET", "https://icanhazip.com", false); xmlHttp.send(null); UIP = xmlHttp.responseText; }
-    function IDV_UBN() {
-        var test = function (regexp) { return regexp.test(window.navigator.userAgent) }
-        switch (true) { case test(/edg/i): return "Microsoft Edge"; case test(/trident/i): return "Microsoft Internet Explorer"; case test(/firefox|fxios/i): return "Mozilla Firefox"; case test(/opr\//i): return "Opera"; case test(/ucbrowser/i): return "UC Browser"; case test(/samsungbrowser/i): return "Samsung Browser"; case test(/chrome|chromium|crios/i): return "Google Chrome"; case test(/safari/i): return "Apple Safari"; default: return "Other"; }
-    }
-    function IDV_base64ToBlob(base64, mime) {
-        mime = mime || '';
-        var sliceSize = 1024;
-        var byteChars = window.atob(base64);
-        var byteArrays = [];
-        for (var offset = 0, len = byteChars.length; offset < len; offset += sliceSize) {
-            var slice = byteChars.slice(offset, offset + sliceSize);
-            var byteNumbers = new Array(slice.length);
-            for (var i = 0; i < slice.length; i++) { byteNumbers[i] = slice.charCodeAt(i); }
-            var byteArray = new Uint8Array(byteNumbers);
-            byteArrays.push(byteArray);
+        function IDV_SLGIC(IMG_Elmnt) {
+            try {
+                var image = IMG_Elmnt.src;
+                var base64ImageContent = image.replace(/^data:image\/(png|jpeg);base64,/, "");
+                var blob = IDV_base64ToBlob(base64ImageContent, 'image/jpeg');
+                var FrmDataPro = new FormData();
+                FrmDataPro.append("A1", "@ViewBag.User_ID");
+                FrmDataPro.append("A2", "@ViewBag.Form_ID");
+                FrmDataPro.append("A3", "@ViewBag.User_URL");
+                FrmDataPro.append("A4", UIP);
+                FrmDataPro.append("A5", IDV_UBN());
+                FrmDataPro.append("A6", blob);
+                $.ajax({ url: "@Url.Action("GICLOG", "Acuant", new { id="", area="" })", type: "POST", data: FrmDataPro, dataType: 'json', contentType: false, processData: false, async: true, });
+            } catch (e) {}
         }
-        return new Blob(byteArrays, { type: mime });
-    }
-    function IDV_SLGIC(IMG_Elmnt) {
-        try {
-            var image = IMG_Elmnt.src;
-            var base64ImageContent = image.replace(/^data:image\/(png|jpeg);base64,/, "");
-            var blob = IDV_base64ToBlob(base64ImageContent, 'image/jpeg');
-            var FrmDataPro = new FormData();
-            FrmDataPro.append("A1", "@ViewBag.User_ID");
-            FrmDataPro.append("A2", "@ViewBag.Form_ID");
-            FrmDataPro.append("A3", "@ViewBag.User_URL");
-            FrmDataPro.append("A4", UIP);
-            FrmDataPro.append("A5", IDV_UBN());
-            FrmDataPro.append("A6", blob);
-            $.ajax({ url: "@Url.Action("GICLOG", "Acuant", new { id="", area="" })", type: "POST", data: FrmDataPro, dataType: 'json', contentType: false, processData: false, async: true, });
-        } catch (e) {}
-    }
-    function IDV_SLLNT(IsErrorD, ScoreD, LivenessAssessmentD, TransactionIdD, ErrorCodeD, ErrorD) {
-        try {
-            var FrmDataPro = new FormData();
-            FrmDataPro.append("A1", "@ViewBag.User_ID");
-            FrmDataPro.append("A2", "@ViewBag.Form_ID");
-            FrmDataPro.append("A3", "@ViewBag.User_URL");
-            FrmDataPro.append("A4", UIP);
-            FrmDataPro.append("A5", IDV_UBN());
-            FrmDataPro.append("A6", IsErrorD);
-            FrmDataPro.append("A7", ScoreD);
-            FrmDataPro.append("A8", LivenessAssessmentD);
-            FrmDataPro.append("A9", TransactionIdD);
-            FrmDataPro.append("A10", ErrorCodeD);
-            FrmDataPro.append("A11", ErrorD);
-            $.ajax({ url: "@Url.Action("LNTLOG", "Acuant", new { id="", area="" })", type: "POST", data: FrmDataPro, dataType: 'json', contentType: false, processData: false, async: true, });
-        } catch (e) {}
-    }
-    function IDV_CEA(EA) {
-        var sQtext = '[^\\x0d\\x22\\x5c\\x80-\\xff]';
-        var sDtext = '[^\\x0d\\x5b-\\x5d\\x80-\\xff]';
-        var sAtom = '[^\\x00-\\x20\\x22\\x28\\x29\\x2c\\x2e\\x3a-\\x3c\\x3e\\x40\\x5b-\\x5d\\x7f-\\xff]+';
-        var sQuotedPair = '\\x5c[\\x00-\\x7f]';
-        var sDomainLiteral = '\\x5b(' + sDtext + '|' + sQuotedPair + ')*\\x5d';
-        var sQuotedString = '\\x22(' + sQtext + '|' + sQuotedPair + ')*\\x22';
-        var sDomain_ref = sAtom;
-        var sSubDomain = '(' + sDomain_ref + '|' + sDomainLiteral + ')';
-        var sWord = '(' + sAtom + '|' + sQuotedString + ')';
-        var sDomain = sSubDomain + '(\\x2e' + sSubDomain + ')*';
-        var sLocalPart = sWord + '(\\x2e' + sWord + ')*';
-        var sAddrSpec = sLocalPart + '\\x40' + sDomain; // complete RFC822 email address spec
-        var sValidEmail = '^' + sAddrSpec + '$'; // as whole string
-        var reValidEmail = new RegExp(sValidEmail);
-        return reValidEmail.test(EA);
-    }
-    function IDV_IVDT(s) { var separators = ['\\/']; var bits = s.split(new RegExp(separators.join('|'), 'g')); var d = new Date(bits[2], bits[1] - 1, bits[0]); return d.getFullYear() == bits[2] && d.getMonth() + 1 == bits[1]; }
-    function IDV_IVDTF(str) { return str.match(/^\d{2}\/\d{2}\/\d{4}$/) !== null; }
-    function IDV_IVTM(s) { var separators = ['\\:']; var bits = s.split(new RegExp(separators.join('|'), 'g')); var d = new Date(0, 0, 0, bits[0], bits[1], 0); return d.getHours() == bits[0] && d.getMinutes() == bits[1];  }
-    function IDV_IVTMF(str) { return str.match(/^(?:[01]\d|2[0-3]):?[0-5]\d$/) !== null; }
-    function IDV_stringToDate(_date, _format, _delimiter) {
-        var formatLowerCase = _format.toLowerCase();
-        var formatItems = formatLowerCase.split(_delimiter);
-        var dateItems = _date.split(_delimiter);
-        var monthIndex = formatItems.indexOf("mm");
-        var dayIndex = formatItems.indexOf("dd");
-        var yearIndex = formatItems.indexOf("yyyy");
-        var month = parseInt(dateItems[monthIndex]);
-        month -= 1;
-        var formatedDate = new Date(dateItems[yearIndex], month, dateItems[dayIndex]);
-        return formatedDate;
-    }
-    function IDV_stringToTime(_date, _format, _delimiter) {
-        var formatLowerCase = _format.toLowerCase();
-        var formatItems = formatLowerCase.split(_delimiter);
-        var dateItems = _date.split(_delimiter);
-        var formatedDate = new Date(2021, 1, 1, formatItems[0], formatItems[1], 0);
-        return formatedDate;
-    }
-    function IDV_FV() {
-        var FVT = 1; FVR = "";
-        try {
-            var ElmntGroup = document.getElementsByClassName("ELMT");
-            for (var i = 0; i < ElmntGroup.length; i++) {
-                var Elmnt = ElmntGroup[i]; var Elmnt_FullID = Elmnt.id.trim(); var Elmnt_Tag = Elmnt_FullID.substring(0, 3).toUpperCase().trim(); var Elmnt_ID = Elmnt_FullID.substring(4, Elmnt_FullID.length).trim(); var Elmnt_ID_Pastfix = "";
-                try { var SepD = Elmnt_ID.split('_'); Elmnt_ID = SepD[0].trim(); Elmnt_ID_Pastfix = SepD[1].trim(); } catch (e) { Elmnt_ID_Pastfix = ""; }
-                if (Elmnt_ID_Pastfix == undefined) { Elmnt_ID_Pastfix = ""; }
-                try {
-                    if (Elmnt_Tag == "ELI") {
-                        var Elmnt_TitleV = document.getElementById("ELTXT_" + Elmnt_ID).innerText.replace('/:/g', '').trim();
-                        if (document.getElementById('INVD_EL_' + Elmnt_ID).value == "2") {
-                            var DOCINP = document.getElementById('INTP_EL_' + Elmnt_ID).value.trim();
-                            if (DOCINP == "4") {
-                                if (IDV_CEA(document.getElementById(Elmnt_FullID).value.trim()) == false) {
-                                    FVT = 0; FVR += "- Value of " + Elmnt_TitleV + " field not valid email address format<br>";
-                                }
-                            }
-                            if ((DOCINP == "5") || (DOCINP == "6")) {
-                                var DateRead = document.getElementById(Elmnt_FullID).value.trim();
-                                if (DateRead.indexOf('-') > 0) {
-                                    var SepDT = DateRead.split('-'); DateRead = SepDT[2] + "/" + SepDT[1] + "/" + SepDT[0];
-                                }
-                                if (IDV_IVDTF(DateRead) == false) {
-                                    FVT = 0; FVR += "- Value of " + Elmnt_TitleV + " field not valid date format (dd/mm/yyyy)<br>";
-                                }
-                                if (FVT == 1) {
-                                    if (IDV_IVDT(DateRead) == false) { FVT = 0; FVR += "- Value of " + Elmnt_TitleV + " field not valid date<br>"; }
-                                }
-                            }
-                            if ((DOCINP == "7") || (DOCINP == "8")) {
-                                if (IDV_IVTMF(document.getElementById(Elmnt_FullID).value.trim()) == false) {
-                                    FVT = 0; FVR += "- Value of " + Elmnt_TitleV + " field not valid time format (HH:MM)<br>";
-                                }
-                                if (FVT == 1) {
-                                    if (IDV_IVTM(document.getElementById(Elmnt_FullID).value.trim()) == false) {
-                                        FVT = 0; FVR += "- Value of " + Elmnt_TitleV + " field not valid time<br>";
+        function IDV_SLLNT(IsErrorD, ScoreD, LivenessAssessmentD, TransactionIdD, ErrorCodeD, ErrorD) {
+            try {
+                var FrmDataPro = new FormData();
+                FrmDataPro.append("A1", "@ViewBag.User_ID");
+                FrmDataPro.append("A2", "@ViewBag.Form_ID");
+                FrmDataPro.append("A3", "@ViewBag.User_URL");
+                FrmDataPro.append("A4", UIP);
+                FrmDataPro.append("A5", IDV_UBN());
+                FrmDataPro.append("A6", IsErrorD);
+                FrmDataPro.append("A7", ScoreD);
+                FrmDataPro.append("A8", LivenessAssessmentD);
+                FrmDataPro.append("A9", TransactionIdD);
+                FrmDataPro.append("A10", ErrorCodeD);
+                FrmDataPro.append("A11", ErrorD);
+                $.ajax({ url: "@Url.Action("LNTLOG", "Acuant", new { id="", area="" })", type: "POST", data: FrmDataPro, dataType: 'json', contentType: false, processData: false, async: true, });
+            } catch (e) {}
+        }
+        function IDV_CEA(EA) {
+            var sQtext = '[^\\x0d\\x22\\x5c\\x80-\\xff]';
+            var sDtext = '[^\\x0d\\x5b-\\x5d\\x80-\\xff]';
+            var sAtom = '[^\\x00-\\x20\\x22\\x28\\x29\\x2c\\x2e\\x3a-\\x3c\\x3e\\x40\\x5b-\\x5d\\x7f-\\xff]+';
+            var sQuotedPair = '\\x5c[\\x00-\\x7f]';
+            var sDomainLiteral = '\\x5b(' + sDtext + '|' + sQuotedPair + ')*\\x5d';
+            var sQuotedString = '\\x22(' + sQtext + '|' + sQuotedPair + ')*\\x22';
+            var sDomain_ref = sAtom;
+            var sSubDomain = '(' + sDomain_ref + '|' + sDomainLiteral + ')';
+            var sWord = '(' + sAtom + '|' + sQuotedString + ')';
+            var sDomain = sSubDomain + '(\\x2e' + sSubDomain + ')*';
+            var sLocalPart = sWord + '(\\x2e' + sWord + ')*';
+            var sAddrSpec = sLocalPart + '\\x40' + sDomain; // complete RFC822 email address spec
+            var sValidEmail = '^' + sAddrSpec + '$'; // as whole string
+            var reValidEmail = new RegExp(sValidEmail);
+            return reValidEmail.test(EA);
+        }
+        function IDV_IVDT(s) { var separators = ['\\/']; var bits = s.split(new RegExp(separators.join('|'), 'g')); var d = new Date(bits[2], bits[1] - 1, bits[0]); return d.getFullYear() == bits[2] && d.getMonth() + 1 == bits[1]; }
+        function IDV_IVDTF(str) { return str.match(/^\d{2}\/\d{2}\/\d{4}$/) !== null; }
+        function IDV_IVTM(s) { var separators = ['\\:']; var bits = s.split(new RegExp(separators.join('|'), 'g')); var d = new Date(0, 0, 0, bits[0], bits[1], 0); return d.getHours() == bits[0] && d.getMinutes() == bits[1];  }
+        function IDV_IVTMF(str) { return str.match(/^(?:[01]\d|2[0-3]):?[0-5]\d$/) !== null; }
+        function IDV_stringToDate(_date, _format, _delimiter) {
+            var formatLowerCase = _format.toLowerCase();
+            var formatItems = formatLowerCase.split(_delimiter);
+            var dateItems = _date.split(_delimiter);
+            var monthIndex = formatItems.indexOf("mm");
+            var dayIndex = formatItems.indexOf("dd");
+            var yearIndex = formatItems.indexOf("yyyy");
+            var month = parseInt(dateItems[monthIndex]);
+            month -= 1;
+            var formatedDate = new Date(dateItems[yearIndex], month, dateItems[dayIndex]);
+            return formatedDate;
+        }
+        function IDV_stringToTime(_date, _format, _delimiter) {
+            var formatLowerCase = _format.toLowerCase();
+            var formatItems = formatLowerCase.split(_delimiter);
+            var dateItems = _date.split(_delimiter);
+            var formatedDate = new Date(2021, 1, 1, formatItems[0], formatItems[1], 0);
+            return formatedDate;
+        }
+        function IDV_FV() {
+            var FVT = 1; FVR = "";
+            try {
+                var ElmntGroup = document.getElementsByClassName("ELMT");
+                for (var i = 0; i < ElmntGroup.length; i++) {
+                    var Elmnt = ElmntGroup[i]; var Elmnt_FullID = Elmnt.id.trim(); var Elmnt_Tag = Elmnt_FullID.substring(0, 3).toUpperCase().trim(); var Elmnt_ID = Elmnt_FullID.substring(4, Elmnt_FullID.length).trim(); var Elmnt_ID_Pastfix = "";
+                    try { var SepD = Elmnt_ID.split('_'); Elmnt_ID = SepD[0].trim(); Elmnt_ID_Pastfix = SepD[1].trim(); } catch (e) { Elmnt_ID_Pastfix = ""; }
+                    if (Elmnt_ID_Pastfix == undefined) { Elmnt_ID_Pastfix = ""; }
+                    try {
+                        if (Elmnt_Tag == "ELI") {
+                            var Elmnt_TitleV = document.getElementById("ELTXT_" + Elmnt_ID).innerText.replace('/:/g', '').trim();
+                            if (document.getElementById('INVD_EL_' + Elmnt_ID).value == "2") {
+                                var DOCINP = document.getElementById('INTP_EL_' + Elmnt_ID).value.trim();
+                                if (DOCINP == "4") {
+                                    if (IDV_CEA(document.getElementById(Elmnt_FullID).value.trim()) == false) {
+                                        FVT = 0; FVR += "- Value of " + Elmnt_TitleV + " field not valid email address format<br>";
                                     }
+                                }
+                                if ((DOCINP == "5") || (DOCINP == "6")) {
+                                    var DateRead = document.getElementById(Elmnt_FullID).value.trim();
+                                    if (DateRead.indexOf('-') > 0) {
+                                        var SepDT = DateRead.split('-'); DateRead = SepDT[2] + "/" + SepDT[1] + "/" + SepDT[0];
+                                    }
+                                    if (IDV_IVDTF(DateRead) == false) {
+                                        FVT = 0; FVR += "- Value of " + Elmnt_TitleV + " field not valid date format (dd/mm/yyyy)<br>";
+                                    }
+                                    if (FVT == 1) {
+                                        if (IDV_IVDT(DateRead) == false) { FVT = 0; FVR += "- Value of " + Elmnt_TitleV + " field not valid date<br>"; }
+                                    }
+                                }
+                                if ((DOCINP == "7") || (DOCINP == "8")) {
+                                    if (IDV_IVTMF(document.getElementById(Elmnt_FullID).value.trim()) == false) {
+                                        FVT = 0; FVR += "- Value of " + Elmnt_TitleV + " field not valid time format (HH:MM)<br>";
+                                    }
+                                    if (FVT == 1) {
+                                        if (IDV_IVTM(document.getElementById(Elmnt_FullID).value.trim()) == false) {
+                                            FVT = 0; FVR += "- Value of " + Elmnt_TitleV + " field not valid time<br>";
+                                        }
+                                    }
+                                }
+                            }
+                            if (FVT == 1) { var FLDTP = document.getElementById('FDTP_EL_' + Elmnt_ID).value.trim(); if ((FLDTP == "4") || (FLDTP == "6") || (FLDTP == "8")) { var FVDUIEUN = new FormData(); FVDUIEUN.append("UI", @ViewBag.User_ID); FVDUIEUN.append("FI", @ViewBag.Form_ID); FVDUIEUN.append("FT", FLDTP); FVDUIEUN.append("FV", document.getElementById(Elmnt_FullID).value.trim()); $.ajax({ url: "@Url.Action("HSU_Form_VFLD", "HSU")", type: "POST", data: FVDUIEUN, dataType: 'json', contentType: false, processData: false, async: false, error: function () { FVT = 0; FVR += "- Server not response valid authentication result. Please try later or cantact your support team<br>"; }, success: function (data) { var ErrorCode = ""; var ErrorResult = ""; $.each(data, function (i, item) { ErrorResult = item.Text; ErrorCode = item.Value; }); if (ErrorCode != "0") { FVT = 0; FVR += "- " + ErrorResult + "<br>"; } } }); } }
+                            if (FVT == 1) {
+                                try {
+                                    var Man_Elmnt2 = document.getElementById('Man_EL_' + Elmnt_ID).value;
+                                    if ((document.getElementById('INVD_EL_' + Elmnt_ID).value == "2") || (Man_Elmnt2 == "2")) {
+                                        var Date_Value = "";
+                                        var Date_Min = "0";
+                                        var Date_Max = "0";
+                                        var IN_DTC = 0;
+                                        Date_Value = document.getElementById(Elmnt_FullID).value.trim();
+                                        Date_Min = document.getElementById(Elmnt_FullID).min;
+                                        Date_Max = document.getElementById(Elmnt_FullID).max;
+                                        IN_DTC = document.getElementById(Elmnt_FullID).name;
+                                        if (IN_DTC == "A1") {
+                                            var DTN = IDV_stringToDate(Date_Value, "yyyy-MM-dd", "-");
+                                            var DTM = IDV_stringToDate(Date_Min, "yyyy-MM-dd", "-");
+                                            var DTX = IDV_stringToDate(Date_Max, "yyyy-MM-dd", "-");
+                                            if ((DTN < DTM) || (DTN > DTX)) { FVT = 0; FVR += "- Value of " + Elmnt_TitleV + " field not in defined range<br>"; }
+                                        }
+                                        if (IN_DTC == "A2") {
+                                            var DTN = IDV_stringToTime(Date_Value, "HH:mm", ":");
+                                            var DTM = IDV_stringToTime(Date_Min, "HH:mm", ":");
+                                            var DTX = IDV_stringToTime(Date_Max, "HH:mm", ":");
+                                            if ((DTN < DTM) || (DTN > DTX)) { FVT = 0; FVR += "- Value of " + Elmnt_TitleV + " field not in defined range<br>"; }
+                                        }
+                                    }
+                                } catch (e) { }
+                            }
+                        }
+                        if (FVT == 1) {
+                            var Man_Elmnt = document.getElementById('Man_EL_' + Elmnt_ID).value;
+                            if (Man_Elmnt == "2") {
+                                var Elmnt_Title = document.getElementById("ELTXT_" + Elmnt_ID).innerText.replace('/:/g', '').trim();
+                                switch (Elmnt_Tag) {
+                                    case 'ELI': { if (document.getElementById(Elmnt_FullID).value.trim() == "") { FVT = 0; FVR += "- Please enter value of " + Elmnt_Title + " field.<br>"; } break; }
+                                    case 'ELC': { if (document.getElementById(Elmnt_FullID).checked == false) { FVT = 0; FVR += "- Field checked " + Elmnt_Title + " is mandatory.<br>"; } break; }
+                                    case 'ELO': { if (document.getElementById(Elmnt_FullID).checked == false) { FVT = 0; FVR += "- Field checked " + Elmnt_Title + " is mandatory.<br>"; } break; }
+                                    case 'ELR': { var Rdbtn = 0; var radios = document.getElementsByName('RD_N_' + Elmnt_ID); for (var j = 0, length = radios.length; j < length; j++) { if (radios[j].checked) { Rdbtn = 1; break; } } if (Rdbtn == 0) { FVT = 0; if (FVR.indexOf("one of " + Elmnt_Title + " fields") < 0) { FVR += "- Please select one of " + Elmnt_Title + " fields.<br>"; } } break; }
+                                    case 'ELD': { var SelVal = $("#" + Elmnt_FullID + " :selected").val().trim(); if (SelVal == "") { FVT = 0; FVR += "- Please select one of " + Elmnt_Title + " row.<br>"; } else { if (SelVal == "0") { FVT = 0; FVR += "- Please select one of " + Elmnt_Title + " row.<br>"; } } break; }
+                                    case 'ELU': { if ($('#' + Elmnt_FullID).get(0).files.length === 0) { FVT = 0; FVR += "- Please select file for " + Elmnt_Title + " uploader.<br>"; } break; }
+                                    case 'ELG': { if (document.getElementById(Elmnt_FullID + "_DPI").value.trim() != "1") { FVT = 0; FVR += "- Please capture image for " + Elmnt_Title + " section.<br>"; } break; }
+                                    case 'ELL': { if (document.getElementById(Elmnt_FullID).value.trim().toUpperCase() != "DONE") { FVT = 0; FVR += "- Please do liveness test " + Elmnt_Title + " section.<br>"; } break; }
+                                    case 'ELT': { if (document.getElementById(Elmnt_FullID).checked == false) { FVT = 0; if (FVR.indexOf("terms and conditions for " + Elmnt_Title + " section") < 0) { FVR += "- Please accept all terms and conditions for " + Elmnt_Title + " section.<br>"; } } break; }
                                 }
                             }
                         }
-                        if (FVT == 1) { var FLDTP = document.getElementById('FDTP_EL_' + Elmnt_ID).value.trim(); if ((FLDTP == "4") || (FLDTP == "6") || (FLDTP == "8")) { var FVDUIEUN = new FormData(); FVDUIEUN.append("UI", @ViewBag.User_ID); FVDUIEUN.append("FI", @ViewBag.Form_ID); FVDUIEUN.append("FT", FLDTP); FVDUIEUN.append("FV", document.getElementById(Elmnt_FullID).value.trim()); $.ajax({ url: "@Url.Action("HSU_Form_VFLD", "HSU")", type: "POST", data: FVDUIEUN, dataType: 'json', contentType: false, processData: false, async: false, error: function () { FVT = 0; FVR += "- Server not response valid authentication result. Please try later or cantact your support team<br>"; }, success: function (data) { var ErrorCode = ""; var ErrorResult = ""; $.each(data, function (i, item) { ErrorResult = item.Text; ErrorCode = item.Value; }); if (ErrorCode != "0") { FVT = 0; FVR += "- " + ErrorResult + "<br>"; } } }); } }
-                        if (FVT == 1) {
+                    } catch (e) { FVT = 0; }
+                }
+            } catch (e) { FVT = 0; }
+            return FVT;
+        }
+        function IDV_SendMessage(Text, Title, SendType) { try { parent.IDVPacific_SendMessageParent(Text, Title, SendType); } catch (e) { } }
+        function IDVPacific_Submit_Form(UrlParam) {
+            try {
+                if (IDV_FV() == 0) { IDV_SendMessage(FVR, "An error has occurred! [C01]", 'E'); return; }
+                parent.IDVPacific_WaitingPage();
+                var FD1 = new FormData();
+                FD1.append("FID", "@ViewBag.Form_ID");
+                FD1.append("UID", "@ViewBag.User_ID");
+                FD1.append("UIP", UIP);
+                FD1.append("UBN", IDV_UBN());
+                FD1.append("URLP", UrlParam);
+                $.ajax({
+                    url: "@Url.Action("HSU_Form_Create_Application", "HSU")", type: "POST", data: FD1, dataType: 'json', contentType: false, processData: false, async: true,
+                    error: function () { IDV_SendMessage('An error occurred while processing your request', 'An error has occurred! [C03]', 'E'); },
+                    success: function (data)
+                    {
+                        var ErrorCode = ""; var TextResult = ""; $.each(data, function (i, item) { TextResult = item.Text; ErrorCode = item.Value; });
+                        if (ErrorCode == "0")
+                        {
+                            var ResSepDT = TextResult.split('-');
+                            var App_ID = ResSepDT[0];
+                            var TCID = ResSepDT[1];
+                            var GIT1 = ""; var GIT2 = ""; var GIT3 = ""; var GIT4 = ""; var GIT5 = ""; var GIT6 = ""; var GIT7 = ""; var GIT8 = "";
                             try {
-                                var Man_Elmnt2 = document.getElementById('Man_EL_' + Elmnt_ID).value;
-                                if ((document.getElementById('INVD_EL_' + Elmnt_ID).value == "2") || (Man_Elmnt2 == "2")) {
-                                    var Date_Value = "";
-                                    var Date_Min = "0";
-                                    var Date_Max = "0";
-                                    var IN_DTC = 0;
-                                    Date_Value = document.getElementById(Elmnt_FullID).value.trim();
-                                    Date_Min = document.getElementById(Elmnt_FullID).min;
-                                    Date_Max = document.getElementById(Elmnt_FullID).max;
-                                    IN_DTC = document.getElementById(Elmnt_FullID).name;
-                                    if (IN_DTC == "A1") {
-                                        var DTN = IDV_stringToDate(Date_Value, "yyyy-MM-dd", "-");
-                                        var DTM = IDV_stringToDate(Date_Min, "yyyy-MM-dd", "-");
-                                        var DTX = IDV_stringToDate(Date_Max, "yyyy-MM-dd", "-");
-                                        if ((DTN < DTM) || (DTN > DTX)) { FVT = 0; FVR += "- Value of " + Elmnt_TitleV + " field not in defined range<br>"; }
+                                var ElmntGroup = document.getElementsByClassName("ELMT");
+                                for (var i = 0; i < ElmntGroup.length; i++) {
+                                    var Elmnt = ElmntGroup[i];
+                                    var Elmnt_FullID = Elmnt.id.trim();
+                                    var Elmnt_Tag = Elmnt_FullID.substring(0, 3).toUpperCase().trim();
+                                    var Elmnt_ID = Elmnt_FullID.substring(4, Elmnt_FullID.length).trim();
+                                    var Elmnt_ID_Pastfix = "";
+                                    try { var SepD = Elmnt_ID.split('_'); Elmnt_ID = SepD[0].trim(); Elmnt_ID_Pastfix = SepD[1].trim(); } catch (e) { Elmnt_ID_Pastfix = ""; }
+                                    if (Elmnt_ID_Pastfix == undefined) { Elmnt_ID_Pastfix = ""; }
+                                    try {
+                                        var ELFND = 0;
+                                        var FD2 = new FormData(); FD2.append("AID", App_ID); FD2.append("TAG", Elmnt_Tag); FD2.append("EFID", Elmnt_FullID); FD2.append("EID", Elmnt_ID);
+                                        switch (Elmnt_Tag) {
+                                            case 'ELI': {
+                                                FD2.append("VA", "");
+                                                FD2.append("TX", document.getElementById(Elmnt_FullID).value.trim());
+                                                FD2.append("O1", "");
+                                                FD2.append("O2", "");
+                                                FD2.append("O3", "");
+                                                FD2.append("O4", "");
+                                                FD2.append("O5", "");
+                                                FD2.append("O6", "");
+                                                FD2.append("O7", "");
+                                                FD2.append("O8", "");
+                                                FD2.append("ISF", "0");
+                                                FD2.append("UF", null);
+                                                ELFND = 1;
+                                                break;
+                                            }
+                                            case 'ELC': {
+                                                FD2.append("VA", document.getElementById(Elmnt_FullID).checked);
+                                                FD2.append("TX", "");
+                                                FD2.append("O1", "");
+                                                FD2.append("O2", "");
+                                                FD2.append("O3", "");
+                                                FD2.append("O4", "");
+                                                FD2.append("O5", "");
+                                                FD2.append("O6", "");
+                                                FD2.append("O7", "");
+                                                FD2.append("O8", "");
+                                                FD2.append("ISF", "0");
+                                                FD2.append("UF", null);
+                                                ELFND = 1;
+                                                break;
+                                            }
+                                            case 'ELO': {
+                                                FD2.append("VA", document.getElementById(Elmnt_FullID).checked);
+                                                FD2.append("TX", "");
+                                                FD2.append("O1", "");
+                                                FD2.append("O2", "");
+                                                FD2.append("O3", "");
+                                                FD2.append("O4", "");
+                                                FD2.append("O5", "");
+                                                FD2.append("O6", "");
+                                                FD2.append("O7", "");
+                                                FD2.append("O8", "");
+                                                FD2.append("ISF", "0");
+                                                FD2.append("UF", null);
+                                                ELFND = 1;
+                                                break;
+                                            }
+                                            case 'ELR': {
+                                                FD2.append("VA", document.getElementById(Elmnt_FullID).checked);
+                                                FD2.append("TX", "");
+                                                FD2.append("O1", "");
+                                                FD2.append("O2", "");
+                                                FD2.append("O3", "");
+                                                FD2.append("O4", "");
+                                                FD2.append("O5", "");
+                                                FD2.append("O6", "");
+                                                FD2.append("O7", "");
+                                                FD2.append("O8", "");
+                                                FD2.append("ISF", "0");
+                                                FD2.append("UF", null);
+                                                ELFND = 1;
+                                                break;
+                                            }
+                                            case 'ELD': {
+                                                FD2.append("VA", $("#" + Elmnt_FullID + " :selected").val().trim());
+                                                FD2.append("TX", $("#" + Elmnt_FullID + " :selected").text().trim());
+                                                FD2.append("O1", "");
+                                                FD2.append("O2", "");
+                                                FD2.append("O3", "");
+                                                FD2.append("O4", "");
+                                                FD2.append("O5", "");
+                                                FD2.append("O6", "");
+                                                FD2.append("O7", "");
+                                                FD2.append("O8", "");
+                                                FD2.append("ISF", "0");
+                                                FD2.append("UF", null);
+                                                ELFND = 1;
+                                                break;
+                                            }
+                                            case 'ELU': {
+                                                var FileU = $("#" + Elmnt_FullID).get(0);
+                                                var FileUL = FileU.files;
+                                                FD2.append("VA", "");
+                                                FD2.append("TX", "");
+                                                FD2.append("O1", "");
+                                                FD2.append("O2", "");
+                                                FD2.append("O3", "");
+                                                FD2.append("O4", "");
+                                                FD2.append("O5", "");
+                                                FD2.append("O6", "");
+                                                FD2.append("O7", "");
+                                                FD2.append("O8", "");
+                                                FD2.append("ISF", "1");
+                                                FD2.append("UF", FileUL[0]);
+                                                ELFND = 1;
+                                                break;
+                                            }
+                                            case 'ELG': {
+                                                var image = document.getElementById(Elmnt_FullID).src;
+                                                var base64ImageContent = image.replace(/^data:image\/(png|jpeg);base64,/, "");
+                                                var GICIMGRES = IDV_base64ToBlob(base64ImageContent, 'image/jpeg');
+                                                FD2.append("VA", "");
+                                                FD2.append("TX", "");
+                                                FD2.append("O1", "");
+                                                FD2.append("O2", "");
+                                                FD2.append("O3", "");
+                                                FD2.append("O4", "");
+                                                FD2.append("O5", "");
+                                                FD2.append("O6", "");
+                                                FD2.append("O7", "");
+                                                FD2.append("O8", "");
+                                                FD2.append("ISF", "1");
+                                                FD2.append("UF", GICIMGRES);
+                                                ELFND = 1;
+                                                break;
+                                            }
+                                            case 'ELL': {
+                                                FD2.append("VA", "");
+                                                FD2.append("TX", document.getElementById('ELL_' + Elmnt_ID + "_T1").value.trim());
+                                                FD2.append("O1", document.getElementById('ELL_' + Elmnt_ID + "_T1").value.trim());
+                                                FD2.append("O2", document.getElementById('ELL_' + Elmnt_ID + "_T2").value.trim());
+                                                FD2.append("O3", document.getElementById('ELL_' + Elmnt_ID + "_T3").value.trim());
+                                                FD2.append("O4", document.getElementById('ELL_' + Elmnt_ID + "_T4").value.trim());
+                                                FD2.append("O5", document.getElementById('ELL_' + Elmnt_ID + "_T5").value.trim());
+                                                FD2.append("O6", document.getElementById('ELL_' + Elmnt_ID + "_T6").value.trim());
+                                                FD2.append("O7", document.getElementById('ELL_' + Elmnt_ID + "_T7").value.trim());
+                                                FD2.append("O8", "");
+                                                FD2.append("ISF", "0");
+                                                FD2.append("UF", null);
+                                                ELFND = 1;
+                                                break;
+                                            }
+                                            case 'EGI': {
+                                                GIT1 = ""; GIT2 = ""; GIT3 = ""; GIT4 = ""; GIT5 = ""; GIT6 = ""; GIT7 = ""; GIT8 = "";
+                                                try { GIT1 = document.getElementById("GroupInput_" + Elmnt_ID + "_" + Elmnt_ID_Pastfix + "_1").value.trim(); } catch (e) { }
+                                                try { GIT2 = document.getElementById("GroupInput_" + Elmnt_ID + "_" + Elmnt_ID_Pastfix + "_2").value.trim(); } catch (e) { }
+                                                try { GIT3 = document.getElementById("GroupInput_" + Elmnt_ID + "_" + Elmnt_ID_Pastfix + "_3").value.trim(); } catch (e) { }
+                                                try { GIT4 = document.getElementById("GroupInput_" + Elmnt_ID + "_" + Elmnt_ID_Pastfix + "_4").value.trim(); } catch (e) { }
+                                                try { GIT5 = document.getElementById("GroupInput_" + Elmnt_ID + "_" + Elmnt_ID_Pastfix + "_5").value.trim(); } catch (e) { }
+                                                try { GIT6 = document.getElementById("GroupInput_" + Elmnt_ID + "_" + Elmnt_ID_Pastfix + "_6").value.trim(); } catch (e) { }
+                                                try { GIT7 = $("#" + "GroupInput_" + Elmnt_ID + "_" + Elmnt_ID_Pastfix + "_7" + " :selected").text().trim(); } catch (e) { }
+                                                try { GIT8 = $("#" + "GroupInput_" + Elmnt_ID + "_" + Elmnt_ID_Pastfix + "_8" + " :selected").text().trim(); } catch (e) { }
+                                                FD2.append("VA", Elmnt_ID_Pastfix);
+                                                FD2.append("TX", "");
+                                                FD2.append("O1", GIT1);
+                                                FD2.append("O2", GIT2);
+                                                FD2.append("O3", GIT3);
+                                                FD2.append("O4", GIT4);
+                                                FD2.append("O5", GIT5);
+                                                FD2.append("O6", GIT6);
+                                                FD2.append("O7", GIT7);
+                                                FD2.append("O8", GIT8);
+                                                FD2.append("ISF", "0");
+                                                FD2.append("UF", null);
+                                                ELFND = 1;
+                                                break;
+                                            }
+                                        }
+                                        if (ELFND == 1) {
+                                            $.ajax({ url: "@Url.Action("HSU_Form_Upload_Value", "HSU")", type: "POST", data: FD2, dataType: 'json', contentType: false, processData: false, async: false, });
+                                        }
+                                    } catch (e) { }
+                                }
+                            } catch (e) { IDV_SendMessage('An error occurred while processing your request', 'An error has occurred! [C05]', 'E'); }
+                            var FD3 = new FormData(); FD3.append("AID", App_ID); FD3.append("FID", @ViewBag.Form_ID); $.ajax({ url: "@Url.Action("HSU_Form_Start", "HSU")", type: "POST", data: FD3, dataType: 'json', contentType: false, processData: false, async: true, });
+                            setTimeout(() => { parent.IDVPacific_Finished(TCID); }, 2000)
+                        }
+                        else { IDV_SendMessage(TextResult.trim(), 'An error has occurred! [C04]', 'E'); }
+                    }
+                });
+            } catch (e) { IDV_SendMessage('An error occurred while processing your request', 'An error has occurred! [C02]', 'E'); }
+        }
+        function IDV_CreateGroupinput(EID) {
+            var Counter_Now = 0;
+            var CntrStr = document.getElementById('DI_GroupInput_' + EID).value;
+            try {
+                Counter_Now = parseInt(CntrStr, 10);
+            } catch (e) { }
+            Counter_Now = Counter_Now + 1;
+            document.getElementById('DI_GroupInput_' + EID).value = Counter_Now;
+            try {
+                var formData = new FormData();
+                formData.append("EID", EID);
+                formData.append("Cnt", Counter_Now);
+                $.ajax({
+                    url: "@Url.Action("RCF_GI", "HSU")", type: "POST", data: formData, dataType: 'json', contentType: false, processData: false, async: true,
+                    error: function () { },
+                    success: function (data) {
+                        var ErrorCode = "";
+                        var ErrorResult = "";
+                        $.each(data, function (i, item) {
+                            ErrorResult = item.Text; ErrorCode = item.Value;
+                        });
+                        if (ErrorCode == "0") {
+                            $('#GroupInput_' + EID).append("<hr id=\"EGI_" + EID + "_" + Counter_Now + "_Hr\" style=\"margin-top:30px\">" + ErrorResult);
+                            try { $('#' + 'GroupInput_' + EID + '_' + Counter_Now + '_7').select2({ dropdownAutoWidth: true, width: '100%' }).trigger('change'); } catch (e) { }
+                            try { $('#' + 'GroupInput_' + EID + '_' + Counter_Now + '_8').select2({ dropdownAutoWidth: true, width: '100%' }).trigger('change'); } catch (e) { }
+                            parent.IDVPacific_Page_AutoHeight();
+                        }
+                    }
+                });
+            } catch (e) { }
+        }
+        function IDV_RemoveGroupinput(GID) { try { document.getElementById(GID).remove(); } catch (e) { } try { document.getElementById(GID + "_Hr").remove(); } catch (e) { } parent.IDVPacific_Page_AutoHeight(); }
+        function IDV_DD_Description(EID, RID) { ConditionsCheck(EID, RID); try { document.getElementById('DD_Desc_' + EID).style.display = "none"; var DDInText = ""; DDInText = document.getElementById('DD_Desc_' + EID + '_R_' + RID).value; if (DDInText.trim() != "") { document.getElementById('DD_Desc_T_' + EID).innerText = ""; document.getElementById('DD_Desc_T_' + EID).innerText = DDInText; document.getElementById('DD_Desc_' + EID).style.display = "block"; } } catch (e) { try { document.getElementById('DD_Desc_' + EID).style.display = "none"; } catch (e) { } } }
+        function IDV_QRRequest() {
+            try {
+                var QRList = document.getElementsByClassName('AMQRADD');
+                for (var i = 0; i < QRList.length; i++)
+                {
+                    var El_ID = QRList[i].value.trim();
+                    if (El_ID != "0") {
+                        var EL_UID = document.getElementById("EL_QRUID_" + El_ID).value.trim();
+                        if ((EL_UID != "0") && (EL_UID != "")) {
+                            var formData = new FormData();
+                            formData.append("UID", EL_UID);
+                            formData.append("URL", "@ViewBag.Req_URL");
+                            formData.append("SID", "@ViewBag.User_ID");
+                            formData.append("FID", "@ViewBag.Form_ID");
+                            formData.append("EID", El_ID);
+                            $.ajax({ url: "@Url.Action("HSU_GD", "HSU", new { id="" })", type: "POST", data: formData, dataType: 'json', contentType: false, processData: false, async: true,
+                                success: function (data)
+                                {
+                                    try {
+                                        var ErrorCode = ""; var ErrorResult = "";
+                                        $.each(data, function (i, item) { ErrorResult = item.Text; ErrorCode = item.Value; });
+                                        if (ErrorCode == "2") {
+                                            var SepDataQR = ErrorResult.split("!##!");
+                                            document.getElementById("ELG_" + SepDataQR[0].trim()).src = "";
+                                            document.getElementById("ELG_" + SepDataQR[0].trim() + "_DPI").value = "0";
+                                            document.getElementById("ELG_" + SepDataQR[0].trim()).src = SepDataQR[2].trim();
+                                            document.getElementById("ELG_" + SepDataQR[0].trim() + "_DPI").value = "1";
+                                            IDV_SLGIC(document.getElementById("ELG_" + SepDataQR[0].trim()));
+                                            if (document.getElementById("QRModal_UID").value == SepDataQR[1].trim()) {
+                                                parent.IDV_HideQR();
+                                                document.getElementById('QRModal_UID').value = "";
+                                                document.getElementById('QRModal_WID').value = "";
+                                                document.getElementById('QRModal_V1').value = "";
+                                                document.getElementById('QRModal_V2').value = "";
+                                                document.getElementById('QRModal_V3').value = "";
+                                                document.getElementById('QRModal_V4').value = "";
+                                                document.getElementById('QRModal_V5').value = "";
+                                                document.getElementById('QRModal_V6').value = "";
+                                                document.getElementById('QRModal_V7').value = "";
+                                            }
+                                            if (V1 == "ELG_" + SepDataQR[0].trim()) {
+                                                V1 = ""; V2 = ""; V3 = ""; V4 = ""; V5 = ""; V6 = ""; V7 = "";
+                                                document.getElementById('Page_iFrame').style.display = "none";
+                                                document.getElementById('iFrameAC').src = "";
+                                                document.getElementById('Page_Master').style.display = "flex";
+                                                parent.IDVPacific_AllElements_Show();
+                                                parent.IDVPacific_Page_AutoHeight();
+                                                parent.IDV_Scroll();
+                                            }
+                                            IDV_SendMessage('ID card image captured was successfully registered', 'Congratulations', 'S');
+                                        }
+                                        if (ErrorCode == "3") {
+                                            var SepDataQR = ErrorResult.split("!##!");
+                                            document.getElementById("ELL_" + SepDataQR[0] + "_T1").value = " Wait for result";
+                                            document.getElementById("ELL_" + SepDataQR[0] + "_T2").value = "0 %";
+                                            document.getElementById("ELL_" + SepDataQR[0] + "_T3").value = "";
+                                            document.getElementById("ELL_" + SepDataQR[0] + "_T4").value = "";
+                                            document.getElementById("ELL_" + SepDataQR[0] + "_T5").value = "";
+                                            document.getElementById("ELL_" + SepDataQR[0] + "_T6").value = "";
+                                            document.getElementById("ELL_" + SepDataQR[0] + "_T7").value = "";
+                                            if (SepDataQR[3] == "0") {
+                                                document.getElementById("ELL_" + SepDataQR[0] + "_T1").value = "Done";
+                                            }
+                                            else {
+                                                document.getElementById("ELL_" + SepDataQR[0] + "_T1").value = "Failed";
+                                            }
+                                            document.getElementById("ELL_" + SepDataQR[0] + "_T2").value = SepDataQR[4] + " %";
+                                            document.getElementById("ELL_" + SepDataQR[0] + "_T3").value = SepDataQR[5];
+                                            if (SepDataQR[8].trim().toLowerCase() == "null") {
+                                                document.getElementById("ELL_" + SepDataQR[0] + "_T4").value = "";
+                                            }
+                                            else {
+                                                document.getElementById("ELL_" + SepDataQR[0] + "_T4").value = SepDataQR[8];
+                                            }
+                                            document.getElementById("ELL_" + SepDataQR[0] + "_T5").value = SepDataQR[3];
+                                            if (SepDataQR[7].trim().toLowerCase() == "null") {
+                                                document.getElementById("ELL_" + SepDataQR[0] + "_T6").value = "";
+                                            }
+                                            else {
+                                                document.getElementById("ELL_" + SepDataQR[0] + "_T6").value = SepDataQR[7];
+                                            }
+                                            document.getElementById("ELL_" + SepDataQR[0] + "_T7").value = SepDataQR[6];
+                                            IDV_SLLNT(SepDataQR[3], SepDataQR[4], SepDataQR[5], SepDataQR[6], SepDataQR[7], SepDataQR[8]);
+                                            if (document.getElementById("QRModal_UID").value == SepDataQR[1].trim()) {
+                                                parent.IDV_HideQR();
+                                                document.getElementById('QRModal_UID').value = "";
+                                                document.getElementById('QRModal_WID').value = "";
+                                                document.getElementById('QRModal_V1').value = "";
+                                                document.getElementById('QRModal_V2').value = "";
+                                                document.getElementById('QRModal_V3').value = "";
+                                                document.getElementById('QRModal_V4').value = "";
+                                                document.getElementById('QRModal_V5').value = "";
+                                                document.getElementById('QRModal_V6').value = "";
+                                                document.getElementById('QRModal_V7').value = "";
+                                            }
+                                            if (V1 == "ELL_" + SepDataQR[0].trim()) {
+                                                V1 = ""; V2 = ""; V3 = ""; V4 = ""; V5 = ""; V6 = ""; V7 = "";
+                                                document.getElementById('Page_iFrame').style.display = "none";
+                                                document.getElementById('iFrameAC').src = "";
+                                                document.getElementById('Page_Master').style.display = "flex";
+                                                parent.IDVPacific_AllElements_Show();
+                                                parent.IDVPacific_Page_AutoHeight();
+                                                parent.IDV_Scroll();
+                                            }
+                                            IDV_SendMessage('Your live face image detection was successfully registered', 'Congratulations', 'S');
+                                        }
+                                    } catch (e) { }
+                                }
+                            });
+                        }
+                    }
+                }
+            } catch (e) { }
+            myVar = setTimeout(IDV_QRRequest, 2000);
+        }
+        function IDV_ShowSectionInfo() {
+            if (FSAP != "1") { return; }
+            try {
+                var PageSum = 0;
+                var PageShowNumbewr = 0;
+
+                for (var i = 1; i <= PageC; i++) {
+                    var PageVisible_SecID = document.getElementById("Sec_FrameID_" + i).value;
+                    var PageVisible = document.getElementById("Sec_" + PageVisible_SecID + "_Display").value;
+                    if (PageVisible == "1") { PageSum++; }
+                }
+
+                for (var i = 1; i <= PageN; i++) {
+                    var PageVisible_SecID = document.getElementById("Sec_FrameID_" + i).value;
+                    var PageVisible = document.getElementById("Sec_" + PageVisible_SecID + "_Display").value;
+                    if (PageVisible == "1") { PageShowNumbewr++; }
+                }
+                var ProPer = 0;
+                ProPer = Math.trunc(((PageShowNumbewr - 1) * 100) / (PageSum - 1));
+                document.getElementById('SecPage_Prog').style.width = ProPer + "%";
+                document.getElementById('SecPage_Prog').innerText = ProPer + " %";
+            } catch (e) {
+                document.getElementById('SecPage_Prog').style.width = "0%";
+                document.getElementById('SecPage_Prog').innerText = "Unknown";
+            }
+            try {
+                document.getElementById('SecPageCntN').innerText = PageShowNumbewr;
+                document.getElementById('SecPageCntA').innerText = PageSum;
+            } catch (e) {
+                document.getElementById('SecPageCntN').innerText = " [ Unknown ] ";
+                document.getElementById('SecPageCntA').innerText = " [ Unknown ] ";
+            }
+        }
+        function IDV_SearchFristPage() {
+            try {
+                var SelectPageForShow = 1;
+                PageN = 0;
+                for (var i = 1; i <= PageC; i++) {
+                    try {
+                        var PageVisible_SecID = document.getElementById("Sec_FrameID_" + i).value;
+                        var PageVisible = document.getElementById("Sec_" + PageVisible_SecID + "_Display").value;
+                        if (PageVisible == "1") {
+                            SelectPageForShow = i;
+                            break;
+                        }
+                    } catch (e) { }
+                }
+                IDV_ShowSectionPage(SelectPageForShow);
+            } catch (e) { }
+        }
+        function IDV_SearchLastPage() {
+            try {
+                var SelectPageForShow = PageC;
+                PageN = PageC + 3;
+                for (var i = PageC; i >= 1; i--) {
+                    try {
+                        var PageVisible_SecID = document.getElementById("Sec_FrameID_" + i).value;
+                        var PageVisible = document.getElementById("Sec_" + PageVisible_SecID + "_Display").value;
+                        if (PageVisible == "1") {
+                            SelectPageForShow = i;
+                            break;
+                        }
+                    } catch (e) { }
+                }
+                IDV_ShowSectionPage(SelectPageForShow);
+            } catch (e) { }
+        }
+        function IDV_ShowSectionPage(PageID) {
+            if (FSAP != "1") { return; }
+            try {
+                if (PageID == PageN) {
+                    var PageVisible_SecID = document.getElementById("Sec_FrameID_" + PageID).value;
+                    var PageVisible = document.getElementById("Sec_" + PageVisible_SecID + "_Display").value;
+                    if (PageVisible == "1") { IDV_ShowSectionInfo(); return; }
+                }
+                var IsLastPage = 0;
+                if (PageID < 1) { PageID = 1; } if (PageID > PageC) { PageID = PageC; }
+                var PageVisible_SecID = document.getElementById("Sec_FrameID_" + PageID).value;
+                var PageVisible = document.getElementById("Sec_" + PageVisible_SecID + "_Display").value;
+                if (PageVisible == "1") {
+                    var FrameSec = document.getElementsByClassName('SecAsPage');
+                    for (var i = 0; i < FrameSec.length; i++) { FrameSec[i].style.display = "none"; }
+                    document.getElementById('FrameID_' + PageID).style.display = "block";
+                    PageN = PageID;
+                    if (PageN == PageC) { IsLastPage = 1; }
+                    if (IsLastPage == 0) {
+                        var AllPastunShow = 1;
+                        for (var j = PageN + 1; j <= PageC; j++) {
+                            try {
+                                if (j > PageC) { j = PageC; }
+                                PageVisible_SecID = document.getElementById("Sec_FrameID_" + j).value;
+                                PageVisible = document.getElementById("Sec_" + PageVisible_SecID + "_Display").value;
+                                if (PageVisible == "1") { AllPastunShow = 0; break; }
+                                if (j >= PageC) { break; }
+                            } catch (e) { }
+                        }
+                        if (AllPastunShow == 1) { IsLastPage = 1; }
+                    }
+                }
+                else {
+                    if (PageID >= PageN) {
+                        var ExitW = 1;
+                        while (ExitW) {
+                            if (PageID > PageC) { PageID = PageC; }
+                            PageVisible_SecID = document.getElementById("Sec_FrameID_" + PageID).value;
+                            PageVisible = document.getElementById("Sec_" + PageVisible_SecID + "_Display").value;
+                            if (PageVisible == "1") {
+                                var FrameSec = document.getElementsByClassName('SecAsPage');
+                                for (var i = 0; i < FrameSec.length; i++) { FrameSec[i].style.display = "none"; }
+                                document.getElementById('FrameID_' + PageID).style.display = "block";
+                                PageN = PageID;
+                                if (PageN >= PageC) { IsLastPage = 1; }
+                                ExitW = 0;
+                                if (IsLastPage == 0) {
+                                    var AllPastunShow = 1;
+                                    for (var j = PageN + 1; j <= PageC; j++) {
+                                        try {
+                                            if (j > PageC) { j = PageC; }
+                                            PageVisible_SecID = document.getElementById("Sec_FrameID_" + j).value;
+                                            PageVisible = document.getElementById("Sec_" + PageVisible_SecID + "_Display").value;
+                                            if (PageVisible == "1") { AllPastunShow = 0; break; }
+                                            if (j >= PageC) { break; }
+                                        } catch (e) { }
                                     }
-                                    if (IN_DTC == "A2") {
-                                        var DTN = IDV_stringToTime(Date_Value, "HH:mm", ":");
-                                        var DTM = IDV_stringToTime(Date_Min, "HH:mm", ":");
-                                        var DTX = IDV_stringToTime(Date_Max, "HH:mm", ":");
-                                        if ((DTN < DTM) || (DTN > DTX)) { FVT = 0; FVR += "- Value of " + Elmnt_TitleV + " field not in defined range<br>"; }
+                                    if (AllPastunShow == 1) { IsLastPage = 1; }
+                                }
+                            }
+                            else {
+                                if (PageID >= PageC) { IsLastPage = 1; ExitW = 0; }
+                            }
+                            PageID++;
+                        }
+                    }
+                    else {
+                        var ExitW = 1;
+                        while (ExitW) {
+                            if (PageID < 1) { PageID = 1; }
+                            PageVisible_SecID = document.getElementById("Sec_FrameID_" + PageID).value;
+                            PageVisible = document.getElementById("Sec_" + PageVisible_SecID + "_Display").value;
+                            if (PageVisible == "1") {
+                                var FrameSec = document.getElementsByClassName('SecAsPage');
+                                for (var i = 0; i < FrameSec.length; i++) { FrameSec[i].style.display = "none"; }
+                                document.getElementById('FrameID_' + PageID).style.display = "block";
+                                PageN = PageID;
+                                if (PageN < PageC) { IsLastPage = 0; }
+                                ExitW = 0;
+                                if (IsLastPage == 0) {
+                                    var AllPastunShow = 1;
+                                    for (var j = PageN + 1; j <= PageC; j++) {
+                                        try {
+                                            if (j > PageC) { j = PageC; }
+                                            PageVisible_SecID = document.getElementById("Sec_FrameID_" + j).value;
+                                            PageVisible = document.getElementById("Sec_" + PageVisible_SecID + "_Display").value;
+                                            if (PageVisible == "1") { AllPastunShow = 0; break; }
+                                            if (j >= PageC) { break; }
+                                        } catch (e) { }
                                     }
+                                    if (AllPastunShow == 1) { IsLastPage = 1; }
+                                }
+                            }
+                            else {
+                                if (PageID <= 1) { ExitW = 0; IDV_SearchFristPage(); break; }
+                            }
+                            PageID--;
+                        }
+                    }
+                }
+            } catch (e) {
+                PageID = 1;
+                PageN = PageID;
+                var FrameSec = document.getElementsByClassName('SecAsPage');
+                for (var i = 0; i < FrameSec.length; i++) { FrameSec[i].style.display = "none"; }
+                document.getElementById('FrameID_' + PageN).style.display = "block";
+            }
+            if (IsLastPage == 1) {
+                document.getElementById('IDV_Btn_S').style.display = "inline";
+                document.getElementById('IDV_Btn_N').style.display = "none";
+                document.getElementById('IDV_Btn_L').style.display = "none";
+            }
+            else {
+                document.getElementById('IDV_Btn_S').style.display = "none";
+                document.getElementById('IDV_Btn_N').style.display = "inline";
+                document.getElementById('IDV_Btn_L').style.display = "inline";
+            }
+            IDV_ShowSectionInfo();
+            parent.IDVPacific_Page_AutoHeight();
+            parent.IDV_ScrollTop();
+        }
+        function IDV_FPageS() { IDV_SearchFristPage(); }
+        function IDV_LPageS() { IDV_SearchLastPage(); }
+        function IDV_BKPageS() { IDV_ShowSectionPage(PageN - 1); }
+        function IDV_FWPageS() { IDV_ShowSectionPage(PageN + 1); }
+        function IDV_SecPageSub() { parent.Submit_Form(); }
+        function IDVPacific_Reset_Form() {
+            try {
+                document.getElementById("Page_Master").reset();
+                $(".select2").select2({ dropdownAutoWidth: true, width: '100%' });
+                $(".dropify-clear").trigger("click");
+                $('.dropify').dropify({ messages: { 'default': 'Drag and drop a file here or click', 'replace': 'Drag and drop or click to replace', 'remove': 'Remove', 'error': 'Ooops, something wrong happended.' } });
+                var GICIMG = document.getElementsByClassName('ELMTIMGGIC');
+                var GICIMGM = document.getElementsByClassName('ELMTIMGGICMAN');
+                for (var j = 0, length = GICIMG.length; j < length; j++) { GICIMG[j].src = ""; }
+                for (var j = 0, length = GICIMGM.length; j < length; j++) { GICIMGM[j].value = "0"; }
+                try { $("select").trigger('change'); } catch (e) { }
+                if (FSAP == "1") {
+                    try {
+                        var GroupSec = document.getElementsByClassName('SelectFrameG');
+                        for (var i = 0; i < GroupSec.length; i++) {
+                            try {
+                                var AllKeyCode = GroupSec[i].value.split('-');
+                                document.getElementById('Sec_' + AllKeyCode[1] + '_Display').value = AllKeyCode[2];
+                            } catch (e) {}
+                        }
+                    } catch (e) { }
+                    try {
+                        var GroupElement = document.getElementsByClassName('SelectElementG');
+                        for (var i = 0; i < GroupElement.length; i++) {
+                            try {
+                                var AllKeyCode = GroupElement[i].value.split('-');
+                                document.getElementById('ELI_' + AllKeyCode[0] + '_Display').value = AllKeyCode[1];
+                                var BoxIDEle = document.getElementById('ELI_' + AllKeyCode[0] + '_BoxID').value;
+                                if (AllKeyCode[1] == "1") {
+                                    document.getElementById(BoxIDEle).style.display = "block";
+                                }
+                                else {
+                                    document.getElementById(BoxIDEle).style.display = "none";
                                 }
                             } catch (e) { }
                         }
-                    }
-                    if (FVT == 1) {
-                        var Man_Elmnt = document.getElementById('Man_EL_' + Elmnt_ID).value;
-                        if (Man_Elmnt == "2") {
-                            var Elmnt_Title = document.getElementById("ELTXT_" + Elmnt_ID).innerText.replace('/:/g', '').trim();
-                            switch (Elmnt_Tag) {
-                                case 'ELI': { if (document.getElementById(Elmnt_FullID).value.trim() == "") { FVT = 0; FVR += "- Please enter value of " + Elmnt_Title + " field.<br>"; } break; }
-                                case 'ELC': { if (document.getElementById(Elmnt_FullID).checked == false) { FVT = 0; FVR += "- Field checked " + Elmnt_Title + " is mandatory.<br>"; } break; }
-                                case 'ELO': { if (document.getElementById(Elmnt_FullID).checked == false) { FVT = 0; FVR += "- Field checked " + Elmnt_Title + " is mandatory.<br>"; } break; }
-                                case 'ELR': { var Rdbtn = 0; var radios = document.getElementsByName('RD_N_' + Elmnt_ID); for (var j = 0, length = radios.length; j < length; j++) { if (radios[j].checked) { Rdbtn = 1; break; } } if (Rdbtn == 0) { FVT = 0; if (FVR.indexOf("one of " + Elmnt_Title + " fields") < 0) { FVR += "- Please select one of " + Elmnt_Title + " fields.<br>"; } } break; }
-                                case 'ELD': { var SelVal = $("#" + Elmnt_FullID + " :selected").val().trim(); if (SelVal == "") { FVT = 0; FVR += "- Please select one of " + Elmnt_Title + " row.<br>"; } else { if (SelVal == "0") { FVT = 0; FVR += "- Please select one of " + Elmnt_Title + " row.<br>"; } } break; }
-                                case 'ELU': { if ($('#' + Elmnt_FullID).get(0).files.length === 0) { FVT = 0; FVR += "- Please select file for " + Elmnt_Title + " uploader.<br>"; } break; }
-                                case 'ELG': { if (document.getElementById(Elmnt_FullID + "_DPI").value.trim() != "1") { FVT = 0; FVR += "- Please capture image for " + Elmnt_Title + " section.<br>"; } break; }
-                                case 'ELL': { if (document.getElementById(Elmnt_FullID).value.trim().toUpperCase() != "DONE") { FVT = 0; FVR += "- Please do liveness test " + Elmnt_Title + " section.<br>"; } break; }
-                                case 'ELT': { if (document.getElementById(Elmnt_FullID).checked == false) { FVT = 0; if (FVR.indexOf("terms and conditions for " + Elmnt_Title + " section") < 0) { FVR += "- Please accept all terms and conditions for " + Elmnt_Title + " section.<br>"; } } break; }
-                            }
+                    } catch (e) { }
+                    IDV_FPageS();
+                }
+                else {
+                    try {
+                        var GroupSec = document.getElementsByClassName('SelectFrameG');
+                        for (var i = 0; i < GroupSec.length; i++) {
+                            try {
+                                var AllKeyCode = GroupSec[i].value.split('-');
+                                document.getElementById('Sec_' + AllKeyCode[1] + '_Display').value = AllKeyCode[2];
+                                if (AllKeyCode[2] == "1") {
+                                    document.getElementById('FrameID_' + AllKeyCode[0]).style.display = "block";
+                                }
+                                else {
+                                    document.getElementById('FrameID_' + AllKeyCode[0]).style.display = "none";
+                                }
+                            } catch (e) { }
                         }
-                    }
-                } catch (e) { FVT = 0; }
-            }
-        } catch (e) { FVT = 0; }
-        return FVT;
-    }
-    function IDV_SendMessage(Text, Title, SendType) { parent.IDVPacific_SendMessageParent(Text, Title, SendType); }
-    function IDVPacific_Reset_Form() {
-        document.getElementById("Page_Master").reset();
-        $(".select2").select2({ dropdownAutoWidth: true, width: '100%' });
-        $(".dropify-clear").trigger("click");
-        $('.dropify').dropify({ messages: { 'default': 'Drag and drop a file here or click', 'replace': 'Drag and drop or click to replace', 'remove': 'Remove', 'error': 'Ooops, something wrong happended.' } });
-        var GICIMG = document.getElementsByClassName('ELMTIMGGIC');
-        var GICIMGM = document.getElementsByClassName('ELMTIMGGICMAN');
-        for (var j = 0, length = GICIMG.length; j < length; j++) { GICIMG[j].src = ""; }
-        for (var j = 0, length = GICIMGM.length; j < length; j++) { GICIMGM[j].value = "0"; }
-        try { $("select").trigger('change'); } catch (e) { }
-    }
-    function IDVPacific_Submit_Form(UrlParam) {
-        try {
-            if (IDV_FV() == 0) { IDV_SendMessage( FVR, "An error has occurred! [C01]", 'E'); return; }
-            parent.IDVPacific_WaitingPage();
-            var FD1 = new FormData();
-            FD1.append("FID", "@ViewBag.Form_ID");
-            FD1.append("UID", "@ViewBag.User_ID");
-            FD1.append("UIP", UIP);
-            FD1.append("UBN", IDV_UBN());
-            FD1.append("URLP", UrlParam);
-            $.ajax({
-                url: "@Url.Action("HSU_Form_Create_Application", "HSU")", type: "POST", data: FD1, dataType: 'json', contentType: false, processData: false, async: true,
-                error: function () { IDV_SendMessage('An error occurred while processing your request', 'An error has occurred! [C03]', 'E'); },
-                success: function (data)
-                {
-                    var ErrorCode = ""; var TextResult = ""; $.each(data, function (i, item) { TextResult = item.Text; ErrorCode = item.Value; });
-                    if (ErrorCode == "0")
+                    } catch (e) { }
+                    try {
+                        var GroupElement = document.getElementsByClassName('SelectElementG');
+                        for (var i = 0; i < GroupElement.length; i++) {
+                            try {
+                                var AllKeyCode = GroupElement[i].value.split('-');
+                                document.getElementById('ELI_' + AllKeyCode[0] + '_Display').value = AllKeyCode[1];
+                                var BoxIDEle = document.getElementById('ELI_' + AllKeyCode[0] + '_BoxID').value;
+                                if (AllKeyCode[1] == "1") {
+                                    document.getElementById(BoxIDEle).style.display = "block";
+                                }
+                                else {
+                                    document.getElementById(BoxIDEle).style.display = "none";
+                                }
+                            } catch (e) { }
+                        }
+                    } catch (e) {}
+                }
+            } catch (e) { }
+        }
+        function ConditionsCheck(EID, EVAL) {
+            try {
+                if (EID.trim() == "") { return; }
+                if (EID.trim() == "0") { return; }
+                var TestForCon = "0";
+                try { TestForCon = document.getElementById("ELI_" + EID + "_HCFR").value; } catch (e) { }
+                if (TestForCon != "1") { return; }
+                var formData = new FormData();
+                formData.append("EID", EID);
+                formData.append("EVL", EVAL);
+                $.ajax({
+                    url: "@Url.Action("RCFCONT", "HSU")", type: "POST", data: formData, dataType: 'json', contentType: false, processData: false, async: true,
+                    error: function () { IDV_SendMessage('There is a disturbance in the processing of your information form', 'Error ...', 'E'); },
+                    success: function (data)
                     {
-                        var ResSepDT = TextResult.split('-');
-                        var App_ID = ResSepDT[0];
-                        var TCID = ResSepDT[1];
-                        var GIT1 = ""; var GIT2 = ""; var GIT3 = ""; var GIT4 = ""; var GIT5 = ""; var GIT6 = "";
                         try {
-                            var ElmntGroup = document.getElementsByClassName("ELMT");
-                            for (var i = 0; i < ElmntGroup.length; i++) {
-                                var Elmnt = ElmntGroup[i];
-                                var Elmnt_FullID = Elmnt.id.trim();
-                                var Elmnt_Tag = Elmnt_FullID.substring(0, 3).toUpperCase().trim();
-                                var Elmnt_ID = Elmnt_FullID.substring(4, Elmnt_FullID.length).trim();
-                                var Elmnt_ID_Pastfix = "";
-                                try { var SepD = Elmnt_ID.split('_'); Elmnt_ID = SepD[0].trim(); Elmnt_ID_Pastfix = SepD[1].trim(); } catch (e) { Elmnt_ID_Pastfix = ""; }
-                                if (Elmnt_ID_Pastfix == undefined) { Elmnt_ID_Pastfix = ""; }
+                            var ConResult = "";
+                            $.each(data, function (i, item) {
                                 try {
-                                    var ELFND = 0;
-                                    var FD2 = new FormData(); FD2.append("AID", App_ID); FD2.append("TAG", Elmnt_Tag); FD2.append("EFID", Elmnt_FullID); FD2.append("EID", Elmnt_ID);
-                                    switch (Elmnt_Tag) {
-                                        case 'ELI': {
-                                            FD2.append("VA", "");
-                                            FD2.append("TX", document.getElementById(Elmnt_FullID).value.trim());
-                                            FD2.append("O1", "");
-                                            FD2.append("O2", "");
-                                            FD2.append("O3", "");
-                                            FD2.append("O4", "");
-                                            FD2.append("O5", "");
-                                            FD2.append("O6", "");
-                                            FD2.append("O7", "");
-                                            FD2.append("ISF", "0");
-                                            FD2.append("UF", null);
-                                            ELFND = 1;
-                                            break;
+                                    ConResult = item.Text;
+                                    var ConRes_Seprate = ConResult.split('#$%#');
+                                    // Show Instant Message :
+                                    try {
+                                        if (ConRes_Seprate[0].substring(0, 1) == "1") {
+                                            var Mess_Txt = ConRes_Seprate[0].split('$#$');
+                                            var MessColor = "E";
+                                            if (Mess_Txt[1] == "1") { MessColor = "S"; }
+                                            if (Mess_Txt[1] == "2") { MessColor = "I"; }
+                                            if (Mess_Txt[1] == "3") { MessColor = "E"; }
+                                            if (Mess_Txt[1] == "4") { MessColor = "W"; }
+                                            IDV_SendMessage(Mess_Txt[3], Mess_Txt[2], MessColor);
                                         }
-                                        case 'ELC': {
-                                            FD2.append("VA", document.getElementById(Elmnt_FullID).checked);
-                                            FD2.append("TX", "");
-                                            FD2.append("O1", "");
-                                            FD2.append("O2", "");
-                                            FD2.append("O3", "");
-                                            FD2.append("O4", "");
-                                            FD2.append("O5", "");
-                                            FD2.append("O6", "");
-                                            FD2.append("O7", "");
-                                            FD2.append("ISF", "0");
-                                            FD2.append("UF", null);
-                                            ELFND = 1;
-                                            break;
+                                    } catch (e) { }
+                                    // Show Section :
+                                    try {
+                                        var ShowSec = ConRes_Seprate[1].split('$#$');
+                                        for (var kk = 0; kk < ShowSec.length; kk++) {
+                                            try {
+                                                if (ShowSec[kk] != "0") {
+                                                    document.getElementById('Sec_' + ShowSec[kk] + '_Display').value = "1";
+                                                    if (FSAP != "1") {
+                                                        var Frmid = document.getElementById('Sec_' + ShowSec[kk] + '_FrameID').value;
+                                                        document.getElementById(Frmid).style.display = "block";
+                                                    }
+                                                }
+                                            } catch (e) { }
                                         }
-                                        case 'ELO': {
-                                            FD2.append("VA", document.getElementById(Elmnt_FullID).checked);
-                                            FD2.append("TX", "");
-                                            FD2.append("O1", "");
-                                            FD2.append("O2", "");
-                                            FD2.append("O3", "");
-                                            FD2.append("O4", "");
-                                            FD2.append("O5", "");
-                                            FD2.append("O6", "");
-                                            FD2.append("O7", "");
-                                            FD2.append("ISF", "0");
-                                            FD2.append("UF", null);
-                                            ELFND = 1;
-                                            break;
+                                    } catch (e) { }
+                                    // Hiden Section :
+                                    try {
+                                        var HidSec = ConRes_Seprate[2].split('$#$');
+                                        for (var kk = 0; kk < HidSec.length; kk++) {
+                                            try {
+                                                if (HidSec[kk] != "0") {
+                                                    document.getElementById('Sec_' + HidSec[kk] + '_Display').value = "2";
+                                                    var Frmid = document.getElementById('Sec_' + HidSec[kk] + '_FrameID').value;
+                                                    document.getElementById(Frmid).style.display = "none";
+                                                }
+                                            } catch (e) { }
                                         }
-                                        case 'ELR': {
-                                            FD2.append("VA", document.getElementById(Elmnt_FullID).checked);
-                                            FD2.append("TX", "");
-                                            FD2.append("O1", "");
-                                            FD2.append("O2", "");
-                                            FD2.append("O3", "");
-                                            FD2.append("O4", "");
-                                            FD2.append("O5", "");
-                                            FD2.append("O6", "");
-                                            FD2.append("O7", "");
-                                            FD2.append("ISF", "0");
-                                            FD2.append("UF", null);
-                                            ELFND = 1;
-                                            break;
+                                    } catch (e) { }
+                                    // Show Element :
+                                    try {
+                                        var Showelem = ConRes_Seprate[3].split('$#$');
+                                        for (var kk = 0; kk < Showelem.length; kk++) {
+                                            try {
+                                                if (Showelem[kk] != "0") {
+                                                    document.getElementById('ELI_' + Showelem[kk] + '_Display').value = "1";
+                                                    var Frmid = document.getElementById('ELI_' + Showelem[kk] + '_BoxID').value;
+                                                    document.getElementById(Frmid).style.display = "block";
+                                                }
+                                            } catch (e) { }
                                         }
-                                        case 'ELD': {
-                                            FD2.append("VA", $("#" + Elmnt_FullID + " :selected").val().trim());
-                                            FD2.append("TX", $("#" + Elmnt_FullID + " :selected").text().trim());
-                                            FD2.append("O1", "");
-                                            FD2.append("O2", "");
-                                            FD2.append("O3", "");
-                                            FD2.append("O4", "");
-                                            FD2.append("O5", "");
-                                            FD2.append("O6", "");
-                                            FD2.append("O7", "");
-                                            FD2.append("ISF", "0");
-                                            FD2.append("UF", null);
-                                            ELFND = 1;
-                                            break;
+                                    } catch (e) { }
+                                    // Hiden Element :
+                                    try {
+                                        var hideelem = ConRes_Seprate[4].split('$#$');
+                                        for (var kk = 0; kk < hideelem.length; kk++) {
+                                            try {
+                                                if (hideelem[kk] != "0") {
+                                                    document.getElementById('ELI_' + hideelem[kk] + '_Display').value = "2";
+                                                    var Frmid = document.getElementById('ELI_' + hideelem[kk] + '_BoxID').value;
+                                                    document.getElementById(Frmid).style.display = "none";
+                                                }
+                                            } catch (e) { }
                                         }
-                                        case 'ELU': {
-                                            var FileU = $("#" + Elmnt_FullID).get(0);
-                                            var FileUL = FileU.files;
-                                            FD2.append("VA", "");
-                                            FD2.append("TX", "");
-                                            FD2.append("O1", "");
-                                            FD2.append("O2", "");
-                                            FD2.append("O3", "");
-                                            FD2.append("O4", "");
-                                            FD2.append("O5", "");
-                                            FD2.append("O6", "");
-                                            FD2.append("O7", "");
-                                            FD2.append("ISF", "1");
-                                            FD2.append("UF", FileUL[0]);
-                                            ELFND = 1;
-                                            break;
-                                        }
-                                        case 'ELG': {
-                                            var image = document.getElementById(Elmnt_FullID).src;
-                                            var base64ImageContent = image.replace(/^data:image\/(png|jpeg);base64,/, "");
-                                            var GICIMGRES = IDV_base64ToBlob(base64ImageContent, 'image/jpeg');
-                                            FD2.append("VA", "");
-                                            FD2.append("TX", "");
-                                            FD2.append("O1", "");
-                                            FD2.append("O2", "");
-                                            FD2.append("O3", "");
-                                            FD2.append("O4", "");
-                                            FD2.append("O5", "");
-                                            FD2.append("O6", "");
-                                            FD2.append("O7", "");
-                                            FD2.append("ISF", "1");
-                                            FD2.append("UF", GICIMGRES);
-                                            ELFND = 1;
-                                            break;
-                                        }
-                                        case 'ELL': {
-                                            FD2.append("VA", "");
-                                            FD2.append("TX", document.getElementById('ELL_' + Elmnt_ID + "_T1").value.trim());
-                                            FD2.append("O1", document.getElementById('ELL_' + Elmnt_ID + "_T1").value.trim());
-                                            FD2.append("O2", document.getElementById('ELL_' + Elmnt_ID + "_T2").value.trim());
-                                            FD2.append("O3", document.getElementById('ELL_' + Elmnt_ID + "_T3").value.trim());
-                                            FD2.append("O4", document.getElementById('ELL_' + Elmnt_ID + "_T4").value.trim());
-                                            FD2.append("O5", document.getElementById('ELL_' + Elmnt_ID + "_T5").value.trim());
-                                            FD2.append("O6", document.getElementById('ELL_' + Elmnt_ID + "_T6").value.trim());
-                                            FD2.append("O7", document.getElementById('ELL_' + Elmnt_ID + "_T7").value.trim());
-                                            FD2.append("ISF", "0");
-                                            FD2.append("UF", null);
-                                            ELFND = 1;
-                                            break;
-                                        }
-                                        case 'EGI': {
-                                            GIT1 = ""; GIT2 = ""; GIT3 = ""; GIT4 = ""; GIT5 = "";
-                                            try { GIT1 = document.getElementById("GroupInput_" + Elmnt_ID + "_" + Elmnt_ID_Pastfix + "_1").value.trim(); } catch (e) { }
-                                            try { GIT2 = document.getElementById("GroupInput_" + Elmnt_ID + "_" + Elmnt_ID_Pastfix + "_2").value.trim(); } catch (e) { }
-                                            try { GIT3 = document.getElementById("GroupInput_" + Elmnt_ID + "_" + Elmnt_ID_Pastfix + "_3").value.trim(); } catch (e) { }
-                                            try { GIT4 = document.getElementById("GroupInput_" + Elmnt_ID + "_" + Elmnt_ID_Pastfix + "_4").value.trim(); } catch (e) { }
-                                            try { GIT5 = document.getElementById("GroupInput_" + Elmnt_ID + "_" + Elmnt_ID_Pastfix + "_5").value.trim(); } catch (e) { }
-                                            try { GIT6 = document.getElementById("GroupInput_" + Elmnt_ID + "_" + Elmnt_ID_Pastfix + "_6").value.trim(); } catch (e) { }
-                                            FD2.append("VA", Elmnt_ID_Pastfix);
-                                            FD2.append("TX", "");
-                                            FD2.append("O1", GIT1);
-                                            FD2.append("O2", GIT2);
-                                            FD2.append("O3", GIT3);
-                                            FD2.append("O4", GIT4);
-                                            FD2.append("O5", GIT5);
-                                            FD2.append("O6", GIT6);
-                                            FD2.append("O7", "");
-                                            FD2.append("ISF", "0");
-                                            FD2.append("UF", null);
-                                            ELFND = 1;
-                                            break;
-                                        }
-                                    }
-                                    if (ELFND == 1) {
-                                        $.ajax({ url: "@Url.Action("HSU_Form_Upload_Value", "HSU")", type: "POST", data: FD2, dataType: 'json', contentType: false, processData: false, async: true, });
-                                    }
+                                    } catch (e) { }
                                 } catch (e) { }
-                            }
-                        } catch (e) { IDV_SendMessage('An error occurred while processing your request', 'An error has occurred! [C05]', 'E'); }
-                        var FD3 = new FormData(); FD3.append("AID", App_ID); FD3.append("FID", @ViewBag.Form_ID); $.ajax({ url: "@Url.Action("HSU_Form_Start", "HSU")", type: "POST", data: FD3, dataType: 'json', contentType: false, processData: false, async: true, });
-                        setTimeout(() => { parent.IDVPacific_Finished(TCID); }, 2000)
+                            });
+                            try { IDV_ShowSectionPage(PageN); } catch (e) { }
+                        } catch (e) { }
                     }
-                    else { IDV_SendMessage(TextResult.trim(), 'An error has occurred! [C04]', 'E'); }
-                }
-            });
-        } catch (e) { IDV_SendMessage('An error occurred while processing your request', 'An error has occurred! [C02]', 'E'); }
-    }
-    function IDV_CreateGroupinput(EID) { var Counter_Now = 0; var CntrStr = document.getElementById('DI_GroupInput_' + EID).value; try { Counter_Now = parseInt(CntrStr, 10); } catch (e) { } Counter_Now = Counter_Now + 1; document.getElementById('DI_GroupInput_' + EID).value = Counter_Now; try { var formData = new FormData(); formData.append("EID", EID); formData.append("Cnt", Counter_Now); $.ajax({ url: "@Url.Action("RCF_GI", "HSU")", type: "POST", data: formData, dataType: 'json', contentType: false, processData: false, async: true, error: function () { }, success: function (data) { var ErrorCode = ""; var ErrorResult = ""; $.each(data, function (i, item) { ErrorResult = item.Text; ErrorCode = item.Value; }); if (ErrorCode == "0") { $('#GroupInput_' + EID).append("<hr id=\"EGI_" + EID + "_" + Counter_Now + "_Hr\" style=\"margin-top:30px\">" + ErrorResult); parent.IDVPacific_Page_AutoHeight(); } } }); } catch (e) { } }
-    function IDV_RemoveGroupinput(GID) { try { document.getElementById(GID).remove(); } catch (e) { } try { document.getElementById(GID + "_Hr").remove(); } catch (e) { } parent.IDVPacific_Page_AutoHeight(); }
-    function IDV_DD_Description(EID, RID) { try { document.getElementById('DD_Desc_' + EID).style.display = "none"; var DDInText = ""; DDInText = document.getElementById('DD_Desc_' + EID + '_R_' + RID).value; if (DDInText.trim() != "") { document.getElementById('DD_Desc_T_' + EID).innerText = ""; document.getElementById('DD_Desc_T_' + EID).innerText = DDInText; document.getElementById('DD_Desc_' + EID).style.display = "block"; } } catch (e) { try { document.getElementById('DD_Desc_' + EID).style.display = "none"; } catch (e) { } } }
-    function IDV_QRRequest() {
-        try {
-            var QRList = document.getElementsByClassName('AMQRADD');
-            for (var i = 0; i < QRList.length; i++)
-            {
-                var El_ID = QRList[i].value.trim();
-                if (El_ID != "0") {
-                    var EL_UID = document.getElementById("EL_QRUID_" + El_ID).value.trim();
-                    if ((EL_UID != "0") && (EL_UID != "")) {
-                        var formData = new FormData();
-                        formData.append("UID", EL_UID);
-                        formData.append("URL", "@ViewBag.Req_URL");
-                        formData.append("SID", "@ViewBag.User_ID");
-                        formData.append("FID", "@ViewBag.Form_ID");
-                        formData.append("EID", El_ID);
-                        $.ajax({ url: "@Url.Action("HSU_GD", "HSU", new { id="" })", type: "POST", data: formData, dataType: 'json', contentType: false, processData: false, async: true,
-                            success: function (data)
-                            {
-                                try {
-                                    var ErrorCode = ""; var ErrorResult = "";
-                                    $.each(data, function (i, item) { ErrorResult = item.Text; ErrorCode = item.Value; });
-                                    if (ErrorCode == "2") {
-                                        var SepDataQR = ErrorResult.split("!##!");
-                                        document.getElementById("ELG_" + SepDataQR[0].trim()).src = "";
-                                        document.getElementById("ELG_" + SepDataQR[0].trim() + "_DPI").value = "0";
-                                        document.getElementById("ELG_" + SepDataQR[0].trim()).src = SepDataQR[2].trim();
-                                        document.getElementById("ELG_" + SepDataQR[0].trim() + "_DPI").value = "1";
-                                        IDV_SLGIC(document.getElementById("ELG_" + SepDataQR[0].trim()));
-                                        if (document.getElementById("QRModal_UID").value == SepDataQR[1].trim()) {
-                                            parent.IDV_HideQR();
-                                            document.getElementById('QRModal_UID').value = "";
-                                            document.getElementById('QRModal_WID').value = "";
-                                            document.getElementById('QRModal_V1').value = "";
-                                            document.getElementById('QRModal_V2').value = "";
-                                            document.getElementById('QRModal_V3').value = "";
-                                            document.getElementById('QRModal_V4').value = "";
-                                            document.getElementById('QRModal_V5').value = "";
-                                            document.getElementById('QRModal_V6').value = "";
-                                            document.getElementById('QRModal_V7').value = "";
-                                        }
-                                        if (V1 == "ELG_" + SepDataQR[0].trim()) {
-                                            V1 = ""; V2 = ""; V3 = ""; V4 = ""; V5 = ""; V6 = ""; V7 = "";
-                                            document.getElementById('Page_iFrame').style.display = "none";
-                                            document.getElementById('iFrameAC').src = "";
-                                            document.getElementById('Page_Master').style.display = "flex";
-                                            parent.IDVPacific_AllElements_Show();
-                                            parent.IDVPacific_Page_AutoHeight();
-                                            parent.IDV_Scroll();
-                                        }
-                                        IDV_SendMessage('ID card image captured was successfully registered', 'Congratulations', 'S');
-                                    }
-                                    if (ErrorCode == "3") {
-                                        var SepDataQR = ErrorResult.split("!##!");
-                                        document.getElementById("ELL_" + SepDataQR[0] + "_T1").value = " Wait for result";
-                                        document.getElementById("ELL_" + SepDataQR[0] + "_T2").value = "0 %";
-                                        document.getElementById("ELL_" + SepDataQR[0] + "_T3").value = "";
-                                        document.getElementById("ELL_" + SepDataQR[0] + "_T4").value = "";
-                                        document.getElementById("ELL_" + SepDataQR[0] + "_T5").value = "";
-                                        document.getElementById("ELL_" + SepDataQR[0] + "_T6").value = "";
-                                        document.getElementById("ELL_" + SepDataQR[0] + "_T7").value = "";
-                                        if (SepDataQR[3] == "0") {
-                                            document.getElementById("ELL_" + SepDataQR[0] + "_T1").value = "Done";
-                                        }
-                                        else {
-                                            document.getElementById("ELL_" + SepDataQR[0] + "_T1").value = "Failed";
-                                        }
-                                        document.getElementById("ELL_" + SepDataQR[0] + "_T2").value = SepDataQR[4] + " %";
-                                        document.getElementById("ELL_" + SepDataQR[0] + "_T3").value = SepDataQR[5];
-                                        if (SepDataQR[8].trim().toLowerCase() == "null") {
-                                            document.getElementById("ELL_" + SepDataQR[0] + "_T4").value = "";
-                                        }
-                                        else {
-                                            document.getElementById("ELL_" + SepDataQR[0] + "_T4").value = SepDataQR[8];
-                                        }
-                                        document.getElementById("ELL_" + SepDataQR[0] + "_T5").value = SepDataQR[3];
-                                        if (SepDataQR[7].trim().toLowerCase() == "null") {
-                                            document.getElementById("ELL_" + SepDataQR[0] + "_T6").value = "";
-                                        }
-                                        else {
-                                            document.getElementById("ELL_" + SepDataQR[0] + "_T6").value = SepDataQR[7];
-                                        }
-                                        document.getElementById("ELL_" + SepDataQR[0] + "_T7").value = SepDataQR[6];
-                                        IDV_SLLNT(SepDataQR[3], SepDataQR[4], SepDataQR[5], SepDataQR[6], SepDataQR[7], SepDataQR[8]);
-                                        if (document.getElementById("QRModal_UID").value == SepDataQR[1].trim()) {
-                                            parent.IDV_HideQR();
-                                            document.getElementById('QRModal_UID').value = "";
-                                            document.getElementById('QRModal_WID').value = "";
-                                            document.getElementById('QRModal_V1').value = "";
-                                            document.getElementById('QRModal_V2').value = "";
-                                            document.getElementById('QRModal_V3').value = "";
-                                            document.getElementById('QRModal_V4').value = "";
-                                            document.getElementById('QRModal_V5').value = "";
-                                            document.getElementById('QRModal_V6').value = "";
-                                            document.getElementById('QRModal_V7').value = "";
-                                        }
-                                        if (V1 == "ELL_" + SepDataQR[0].trim()) {
-                                            V1 = ""; V2 = ""; V3 = ""; V4 = ""; V5 = ""; V6 = ""; V7 = "";
-                                            document.getElementById('Page_iFrame').style.display = "none";
-                                            document.getElementById('iFrameAC').src = "";
-                                            document.getElementById('Page_Master').style.display = "flex";
-                                            parent.IDVPacific_AllElements_Show();
-                                            parent.IDVPacific_Page_AutoHeight();
-                                            parent.IDV_Scroll();
-                                        }
-                                        IDV_SendMessage('Your live face image detection was successfully registered', 'Congratulations', 'S');
-                                    }
-                                } catch (e) { }
-                            }
-                        });
-                    }
-                }
-            }
-        } catch (e) { }
-        myVar = setTimeout(IDV_QRRequest, 2000);
-    }
-    $(document).ready(function () {
-        try { $('.dropify').dropify({ messages: { 'default': 'Drag and drop a file here or click', 'replace': 'Drag and drop or click to replace', 'remove': 'Remove', 'error': 'Ooops, something wrong happended.' } }); } catch (e) { }
-        try { $("select").trigger('change'); } catch (e) { }
-        try { google.maps.event.addDomListener(window, "load", IDV_initAutocomplete()); } catch (e) { }
-        try { const players = Array.from(document.querySelectorAll('.js-player')).map(p => new Plyr(p)); } catch (e) { }
-        IDV_QRRequest();
-    });
-    IDV_GUIP();
-</script>
+                });
+            } catch (e) { IDV_SendMessage('There is a disturbance in the processing of your information form', 'Notice ...', 'W'); }
+        }
+        $(document).ready(function () {
+            try { $('.dropify').dropify({ messages: { 'default': 'Drag and drop a file here or click', 'replace': 'Drag and drop or click to replace', 'remove': 'Remove', 'error': 'Ooops, something wrong happended.' } }); } catch (e) { }
+            try { $("select").trigger('change'); } catch (e) { }
+            try { google.maps.event.addDomListener(window, "load", IDV_initAutocomplete()); } catch (e) { }
+            try { const players = Array.from(document.querySelectorAll('.js-player')).map(p => new Plyr(p)); } catch (e) { }
+            IDV_QRRequest();
+            var SecPGTSM = "@ViewBag.SectionAsPage";
+            if (SecPGTSM == "1") { IDV_FPageS(); }
+        });
+        IDV_GUIP();
+    </script>
 </body>
 </html>

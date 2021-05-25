@@ -71,19 +71,22 @@
         </div>
     </div>
     <div class="BtnNav GIC_LNT_Hide">
-        <div class="col-lg-12" id="Btn_FormController" style="opacity:1;pointer-events:auto">
-            <div class="BtnNavSha form-inline" style="width:100%;box-sizing:border-box;background-color:white;min-height:60px;border-radius:10px;font-size:15px;font-weight:normal;font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif">
-                <div style="margin-left:35px">
-                    <a href="javascript:void(0)" style="color:#494949" onclick="Submit_Form()"><i class="fa fa-check" style="margin-right:5px"></i><span>Submit Form</span></a>
-                </div>
-                <div style="margin-left:35px" class="AUHBNEL">
-                    <a href="javascript:void(0)" style="color:#494949" onclick="Reset_Form()"><i class="fa fa-trash" style="margin-right:5px"></i><span>Clear Form</span></a>
-                </div>
-                <div style="margin-left:35px" class="AUHBNEL">
-                    <a href="javascript:void(0)" style="color:#494949" onclick="Reload_Form()"><i class="fa fa-refresh" style="margin-right:5px"></i><span>Reload Form</span></a>
+        @if (ViewBag.SectionAsPage == "0")
+        {
+            <div class="col-lg-12" id="Btn_FormController" style="opacity:1;pointer-events:auto">
+                <div class="BtnNavSha form-inline" style="width:100%;box-sizing:border-box;background-color:white;min-height:60px;border-radius:10px;font-size:15px;font-weight:normal;font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif">
+                    <div style="margin-left:35px">
+                        <a href="javascript:void(0)" style="color:#494949" onclick="Submit_Form()"><i class="fa fa-check" style="margin-right:5px"></i><span>Submit Form</span></a>
+                    </div>
+                    <div style="margin-left:35px" class="AUHBNEL">
+                        <a href="javascript:void(0)" style="color:#494949" onclick="Reset_Form()"><i class="fa fa-trash" style="margin-right:5px"></i><span>Clear Form</span></a>
+                    </div>
+                    <div style="margin-left:35px" class="AUHBNEL">
+                        <a href="javascript:void(0)" style="color:#494949" onclick="Reload_Form()"><i class="fa fa-refresh" style="margin-right:5px"></i><span>Reload Form</span></a>
+                    </div>
                 </div>
             </div>
-        </div>
+        }
         <footer class="footer-light navbar-shadow" style="margin-top:20px;padding:10px;background-color:#f8f8f8 !important">
             <p class="clearfix blue-grey lighten-2">
                 <span class="float-md-left d-block d-md-inline-block mt-25">@ViewBag.Footer1</span>

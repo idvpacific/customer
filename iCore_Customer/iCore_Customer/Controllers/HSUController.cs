@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Net;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
@@ -62,12 +63,22 @@ namespace iCore_Customer.Controllers
                                 }
                                 catch (Exception) { }
                                 DataTable DT_Sections = new DataTable();
-                                DT_Sections = Sq.Get_DTable_TSQL(iCore_Administrator.Modules.DataBase_Selector.Administrator, "Select Section_ID,Width,Icon,Name From Users_05_Hospitality_SingleUser_RegisterForms_Section Where (Group_ID = '" + DT_Form.Rows[0][0].ToString().Trim() + "') And (Status_Code = '1') And (Removed = '0') Order By Row_Index,Name");
+                                DT_Sections = Sq.Get_DTable_TSQL(iCore_Administrator.Modules.DataBase_Selector.Administrator, "Select Section_ID,Width,Icon,Name,DefDisplay From Users_05_Hospitality_SingleUser_RegisterForms_Section Where (Group_ID = '" + DT_Form.Rows[0][0].ToString().Trim() + "') And (Status_Code = '1') And (Removed = '0') Order By Row_Index,Name");
                                 ViewBag.DT_Group = DT_Form.Rows;
                                 ViewBag.DT_Sections = DT_Sections.Rows;
                                 string iCoreUserURL = System.Configuration.ConfigurationManager.AppSettings["iCore_User_URL"];
                                 ViewBag.iCoreUserURL = iCoreUserURL;
                                 ViewBag.SectionAsPage = "0";
+                                ViewBag.ElementsConID = "";
+                                try
+                                {
+                                    string ElementsConID = "";
+                                    DataTable DT_ConList = new DataTable();
+                                    DT_ConList = Sq.Get_DTable_TSQL(iCore_Administrator.Modules.DataBase_Selector.Administrator, "Select Distinct(ElementID) From Users_07_Hospitality_SingleUser_RegisterForms_Conditions Where (FormID = '" + ViewBag.Form_ID + "')");
+                                    foreach (DataRow RW in DT_ConList.Rows) { ElementsConID += RW[0].ToString().Trim() + "-"; }
+                                    ViewBag.ElementsConID = ElementsConID;
+                                }
+                                catch (Exception) { ViewBag.ElementsConID = ""; }
                                 try
                                 {
                                     DataTable DT_Form_Config = new DataTable();
@@ -104,6 +115,238 @@ namespace iCore_Customer.Controllers
         }
         //====================================================================================================================
         [HttpPost]
+        public JsonResult RCFCONT(string EID, string EVL)
+        {
+            try
+            {
+                EID = EID.ToUpper();
+                EID = EID.Replace("A", "").Replace("B", "").Replace("C", "").Replace("D", "").Replace("E", "").Replace("F", "").Replace("G", "").Replace("H", "").Replace("I", "").Replace("J", "").Replace("K", "");
+                EID = EID.Replace("L", "").Replace("M", "").Replace("N", "").Replace("O", "").Replace("P", "").Replace("Q", "").Replace("R", "").Replace("S", "").Replace("T", "").Replace("U", "").Replace("V", "");
+                EID = EID.Replace("W", "").Replace("X", "").Replace("Y", "").Replace("Z", "");
+                EID = EID.Replace("-", "").Replace("_", "").Replace(",", " ").Replace("#", "").Replace("  ", " ").Trim().Replace("  ", " ").Trim();
+                EVL = EVL.Replace(",", " ").Replace("#", "").Replace("  ", " ").Trim();
+                IList<SelectListItem> FeedBack = new List<SelectListItem> { };
+                DataTable DT = new DataTable();
+                DT = Sq.Get_DTable_TSQL(iCore_Administrator.Modules.DataBase_Selector.Administrator, "Select * From Users_07_Hospitality_SingleUser_RegisterForms_Conditions Where (ElementID = '" + EID + "') And (Status_Code = '1') And (Removed = '0')");
+                if (DT.Rows != null)
+                {
+                    if (DT.Rows.Count != 0)
+                    {
+                        string RowResult = "";
+                        bool ValueConTest = false;
+                        string Value_Condition = "";
+                        string Value_Field = "";
+                        foreach (DataRow RW in DT.Rows)
+                        {
+                            ValueConTest = false;
+                            try { Value_Condition = RW[10].ToString().Trim().ToUpper(); } catch (Exception) { }
+                            try { Value_Field = EVL.ToString().Trim().ToUpper(); } catch (Exception) { }
+                            // Condition Test :
+                            try
+                            {
+                                switch (RW[6].ToString().Trim())
+                                {
+                                    case "1":   //------- Text :
+                                        {
+                                            switch (RW[8].ToString().Trim())
+                                            {
+                                                case "1":   //------- Equal :
+                                                    {
+                                                        try { if (Value_Condition == Value_Field) { ValueConTest = true; } } catch (Exception) { }
+                                                        break;
+                                                    }
+                                                case "2":   //------- Unequal :
+                                                    {
+                                                        try { if (Value_Condition != Value_Field) { ValueConTest = true; } } catch (Exception) { }
+                                                        break;
+                                                    }
+                                                case "7":   //------- Lenght :
+                                                    {
+                                                        try { if (Value_Condition.Length == Value_Field.Length) { ValueConTest = true; } } catch (Exception) { }
+                                                        try { if (int.Parse(Value_Condition) == Value_Field.Length) { ValueConTest = true; } } catch (Exception) { }
+                                                        break;
+                                                    }
+                                                case "8":   //------- Start With :
+                                                    {
+                                                        try { if (Value_Condition == Value_Field.Substring(0, Value_Condition.Length)) { ValueConTest = true; } } catch (Exception) { }
+                                                        break;
+                                                    }
+                                                case "9":   //------- End With :
+                                                    {
+                                                        try { if (Value_Condition == Value_Field.Substring(Value_Field.Length - Value_Condition.Length, Value_Condition.Length)) { ValueConTest = true; } } catch (Exception) { }
+                                                        break;
+                                                    }
+                                                case "10":   //------- Contain :
+                                                    {
+                                                        try { if (Value_Field.IndexOf(Value_Condition) >= 0) { ValueConTest = true; } } catch (Exception) { }
+                                                        break;
+                                                    }
+                                            }
+                                            break;
+                                        }
+                                    case "2":   //------- Number :
+                                        {
+                                            switch (RW[8].ToString().Trim())
+                                            {
+                                                case "1":   //------- Equal :
+                                                    {
+                                                        try { if (Value_Condition == Value_Field) { ValueConTest = true; } } catch (Exception) { }
+                                                        break;
+                                                    }
+                                                case "2":   //------- Unequal :
+                                                    {
+                                                        try { if (Value_Condition != Value_Field) { ValueConTest = true; } } catch (Exception) { }
+                                                        break;
+                                                    }
+                                                case "3":   //------- Fewer :
+                                                    {
+                                                        try
+                                                        {
+                                                            double DV_Value_Field = 0;
+                                                            double DV_Value_Condition = 0;
+                                                            DV_Value_Field = double.Parse(Value_Field);
+                                                            DV_Value_Condition = double.Parse(Value_Condition);
+                                                            if (DV_Value_Condition > DV_Value_Field) { ValueConTest = true; }
+                                                        }
+                                                        catch (Exception) { }
+                                                        break;
+                                                    }
+                                                case "4":   //------- Less Equal :
+                                                    {
+                                                        try
+                                                        {
+                                                            double DV_Value_Field = 0;
+                                                            double DV_Value_Condition = 0;
+                                                            DV_Value_Field = double.Parse(Value_Field);
+                                                            DV_Value_Condition = double.Parse(Value_Condition);
+                                                            if (DV_Value_Condition >= DV_Value_Field) { ValueConTest = true; }
+                                                        }
+                                                        catch (Exception) { }
+                                                        break;
+                                                    }
+                                                case "5":   //------- More than :
+                                                    {
+                                                        try
+                                                        {
+                                                            double DV_Value_Field = 0;
+                                                            double DV_Value_Condition = 0;
+                                                            DV_Value_Field = double.Parse(Value_Field);
+                                                            DV_Value_Condition = double.Parse(Value_Condition);
+                                                            if (DV_Value_Condition < DV_Value_Field) { ValueConTest = true; }
+                                                        }
+                                                        catch (Exception) { }
+                                                        break;
+                                                    }
+                                                case "6":   //------- More Equal :
+                                                    {
+                                                        try
+                                                        {
+                                                            double DV_Value_Field = 0;
+                                                            double DV_Value_Condition = 0;
+                                                            DV_Value_Field = double.Parse(Value_Field);
+                                                            DV_Value_Condition = double.Parse(Value_Condition);
+                                                            if (DV_Value_Condition <= DV_Value_Field) { ValueConTest = true; }
+                                                        }
+                                                        catch (Exception) { }
+                                                        break;
+                                                    }
+                                                case "7":   //------- Lenght :
+                                                    {
+                                                        try { if (Value_Condition.Length == Value_Field.Length) { ValueConTest = true; } } catch (Exception) { }
+                                                        try { if (int.Parse(Value_Condition) == Value_Field.Length) { ValueConTest = true; } } catch (Exception) { }
+                                                        break;
+                                                    }
+                                                case "8":   //------- Start With :
+                                                    {
+                                                        try { if (Value_Condition == Value_Field.Substring(0, Value_Condition.Length)) { ValueConTest = true; } } catch (Exception) { }
+                                                        break;
+                                                    }
+                                                case "9":   //------- End With :
+                                                    {
+                                                        try { if (Value_Condition == Value_Field.Substring(Value_Field.Length - Value_Condition.Length, Value_Condition.Length)) { ValueConTest = true; } } catch (Exception) { }
+                                                        break;
+                                                    }
+                                                case "10":   //------- Contain :
+                                                    {
+                                                        try { if (Value_Field.IndexOf(Value_Condition) >= 0) { ValueConTest = true; } } catch (Exception) { }
+                                                        break;
+                                                    }
+                                            }
+                                            break;
+                                        }
+                                    case "3":   //------- Format :
+                                        {
+                                            switch (RW[8].ToString().Trim())
+                                            {
+                                                case "1":   //------- Equal :
+                                                    {
+                                                        try { if (Regex.IsMatch(Value_Field, Value_Condition) == true) { ValueConTest = true; } } catch (Exception) { }
+                                                        break;
+                                                    }
+                                                case "2":   //------- Unequal :
+                                                    {
+                                                        try { if (Regex.IsMatch(Value_Field, Value_Condition) == false) { ValueConTest = true; } } catch (Exception) { }
+                                                        break;
+                                                    }
+                                                case "7":   //------- Lenght :
+                                                    {
+                                                        try { if (Value_Condition.Length == Value_Field.Length) { ValueConTest = true; } } catch (Exception) { }
+                                                        try { if (int.Parse(Value_Condition) == Value_Field.Length) { ValueConTest = true; } } catch (Exception) { }
+                                                        break;
+                                                    }
+                                            }
+                                            break;
+                                        }
+                                    case "4":   //------- True - False :
+                                        {
+                                            switch (RW[8].ToString().Trim())
+                                            {
+                                                case "1":   //------- Equal :
+                                                    {
+                                                        try { if (Value_Condition == Value_Field) { ValueConTest = true; } } catch (Exception) { }
+                                                        break;
+                                                    }
+                                                case "2":   //------- Unequal :
+                                                    {
+                                                        try { if (Value_Condition != Value_Field) { ValueConTest = true; } } catch (Exception) { }
+                                                        break;
+                                                    }
+                                            }
+                                            break;
+                                        }
+                                }
+                            }
+                            catch (Exception) { }
+                            if (ValueConTest == true)
+                            {
+                                RowResult = "";
+                                // Instans message show :
+                                if (RW[20].ToString().Trim() != "") { RowResult += "1$#$" + RW[17].ToString().Trim() + "$#$" + RW[19].ToString().Trim() + "$#$" + RW[20].ToString().Trim() + "#$%#"; } else { RowResult += "0$#$0$#$0$#$0" + "#$%#"; }
+                                // Section Show :
+                                RowResult += RW[21].ToString().Trim() + "$#$" + RW[22].ToString().Trim() + "$#$" + RW[23].ToString().Trim() + "$#$" + RW[24].ToString().Trim() + "$#$" + RW[25].ToString().Trim() + "$#$" + RW[26].ToString().Trim() + "$#$" + RW[27].ToString().Trim() + "$#$" + RW[28].ToString().Trim() + "$#$" + RW[29].ToString().Trim() + "$#$" + RW[30].ToString().Trim() + "#$%#";
+                                // Section Hiden :
+                                RowResult += RW[31].ToString().Trim() + "$#$" + RW[32].ToString().Trim() + "$#$" + RW[33].ToString().Trim() + "$#$" + RW[34].ToString().Trim() + "$#$" + RW[35].ToString().Trim() + "$#$" + RW[36].ToString().Trim() + "$#$" + RW[37].ToString().Trim() + "$#$" + RW[38].ToString().Trim() + "$#$" + RW[39].ToString().Trim() + "$#$" + RW[40].ToString().Trim() + "#$%#";
+                                // Element Show :
+                                RowResult += RW[42].ToString().Trim() + "$#$" + RW[44].ToString().Trim() + "$#$" + RW[46].ToString().Trim() + "$#$" + RW[48].ToString().Trim() + "$#$" + RW[50].ToString().Trim() + "$#$" + RW[52].ToString().Trim() + "$#$" + RW[54].ToString().Trim() + "$#$" + RW[56].ToString().Trim() + "$#$" + RW[58].ToString().Trim() + "$#$" + RW[60].ToString().Trim() + "#$%#";
+                                // Element Hiden :
+                                RowResult += RW[62].ToString().Trim() + "$#$" + RW[64].ToString().Trim() + "$#$" + RW[66].ToString().Trim() + "$#$" + RW[68].ToString().Trim() + "$#$" + RW[70].ToString().Trim() + "$#$" + RW[72].ToString().Trim() + "$#$" + RW[74].ToString().Trim() + "$#$" + RW[76].ToString().Trim() + "$#$" + RW[78].ToString().Trim() + "$#$" + RW[80].ToString().Trim();
+                                // Result :
+                                FeedBack.Add(new SelectListItem { Value = "0", Text = RowResult.Trim() });
+                            }
+                        }
+                    }
+                }
+                return Json(FeedBack, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception)
+            {
+                IList<SelectListItem> FeedBack = new List<SelectListItem>
+                { new SelectListItem{Text = "The server encountered an error while executing your request" , Value = "1"}};
+                return Json(FeedBack, JsonRequestBehavior.AllowGet);
+            }
+        }
+        //====================================================================================================================
+        [HttpPost]
         public JsonResult RCF_GI(string EID, string Cnt)
         {
             try
@@ -122,7 +365,7 @@ namespace iCore_Customer.Controllers
                         string MasterInput = "ELMNTGI";
                         ResSTR += "<div class=\"form-inline ELMT\" style=\"width:100%;margin-top:20px\" id=\"EGI_" + EID + "_" + Cnt + "\">";
                         ResSTR += "<div class=\"col-lg-12\" style=\"text-align:right\">";
-                        ResSTR += "<i class=\"fa fa-trash text-danger\" style=\"cursor:pointer;font-size:16px\" onclick=\"RemoveGroupinput('EGI_" + EID + "_" + Cnt + "')\"></i>";
+                        ResSTR += "<i class=\"fa fa-trash text-danger\" style=\"cursor:pointer;font-size:16px\" onclick=\"IDV_RemoveGroupinput('EGI_" + EID + "_" + Cnt + "')\"></i>";
                         ResSTR += "</div>";
                         if (DT.Rows[0][37].ToString().Trim() != "")
                         {
@@ -160,6 +403,36 @@ namespace iCore_Customer.Controllers
                             ResSTR += "</div>";
                             MasterInput = "";
                         }
+                        if (DT.Rows[0][61].ToString().Trim() != "")
+                        {
+                            ResSTR += "<div class=\"col-lg-" + DT.Rows[0][60].ToString().Trim() + "\">";
+                            ResSTR += "<div class=\"text-bold-300 font-medium-1\" style=\"margin-top:10px;margin-left:5px\">";
+                            ResSTR += DT.Rows[0][61].ToString().Trim();
+                            ResSTR += "</div>";
+                            ResSTR += "<select class=\"select2 form-control\" id=\"GroupInput_" + DT.Rows[0][0].ToString().Trim() + "_" + Cnt + "_7\">";
+                            if (DT.Rows[0][62].ToString().Trim() != "") { ResSTR += "<option value=\"1\">" + DT.Rows[0][62].ToString().Trim() + "</option>"; }
+                            if (DT.Rows[0][63].ToString().Trim() != "") { ResSTR += "<option value=\"2\">" + DT.Rows[0][63].ToString().Trim() + "</option>"; }
+                            if (DT.Rows[0][64].ToString().Trim() != "") { ResSTR += "<option value=\"3\">" + DT.Rows[0][64].ToString().Trim() + "</option>"; }
+                            if (DT.Rows[0][65].ToString().Trim() != "") { ResSTR += "<option value=\"4\">" + DT.Rows[0][65].ToString().Trim() + "</option>"; }
+                            if (DT.Rows[0][66].ToString().Trim() != "") { ResSTR += "<option value=\"5\">" + DT.Rows[0][66].ToString().Trim() + "</option>"; }
+                            if (DT.Rows[0][67].ToString().Trim() != "") { ResSTR += "<option value=\"6\">" + DT.Rows[0][67].ToString().Trim() + "</option>"; }
+                            if (DT.Rows[0][68].ToString().Trim() != "") { ResSTR += "<option value=\"7\">" + DT.Rows[0][68].ToString().Trim() + "</option>"; }
+                            if (DT.Rows[0][69].ToString().Trim() != "") { ResSTR += "<option value=\"8\">" + DT.Rows[0][69].ToString().Trim() + "</option>"; }
+                            if (DT.Rows[0][70].ToString().Trim() != "") { ResSTR += "<option value=\"9\">" + DT.Rows[0][70].ToString().Trim() + "</option>"; }
+                            if (DT.Rows[0][71].ToString().Trim() != "") { ResSTR += "<option value=\"10\">" + DT.Rows[0][71].ToString().Trim() + "</option>"; }
+                            if (DT.Rows[0][72].ToString().Trim() != "") { ResSTR += "<option value=\"11\">" + DT.Rows[0][72].ToString().Trim() + "</option>"; }
+                            if (DT.Rows[0][73].ToString().Trim() != "") { ResSTR += "<option value=\"12\">" + DT.Rows[0][73].ToString().Trim() + "</option>"; }
+                            if (DT.Rows[0][74].ToString().Trim() != "") { ResSTR += "<option value=\"13\">" + DT.Rows[0][74].ToString().Trim() + "</option>"; }
+                            if (DT.Rows[0][75].ToString().Trim() != "") { ResSTR += "<option value=\"14\">" + DT.Rows[0][75].ToString().Trim() + "</option>"; }
+                            if (DT.Rows[0][76].ToString().Trim() != "") { ResSTR += "<option value=\"15\">" + DT.Rows[0][76].ToString().Trim() + "</option>"; }
+                            if (DT.Rows[0][77].ToString().Trim() != "") { ResSTR += "<option value=\"16\">" + DT.Rows[0][77].ToString().Trim() + "</option>"; }
+                            if (DT.Rows[0][78].ToString().Trim() != "") { ResSTR += "<option value=\"17\">" + DT.Rows[0][78].ToString().Trim() + "</option>"; }
+                            if (DT.Rows[0][79].ToString().Trim() != "") { ResSTR += "<option value=\"18\">" + DT.Rows[0][79].ToString().Trim() + "</option>"; }
+                            if (DT.Rows[0][80].ToString().Trim() != "") { ResSTR += "<option value=\"19\">" + DT.Rows[0][80].ToString().Trim() + "</option>"; }
+                            if (DT.Rows[0][81].ToString().Trim() != "") { ResSTR += "<option value=\"20\">" + DT.Rows[0][81].ToString().Trim() + "</option>"; }
+                            ResSTR += "</select>";
+                            ResSTR += "</div>";
+                        }
                         if (DT.Rows[0][49].ToString().Trim() != "")
                         {
                             ResSTR += "<div class=\"col-lg-" + DT.Rows[0][48].ToString().Trim() + "\">";
@@ -195,6 +468,36 @@ namespace iCore_Customer.Controllers
                             ResSTR += "</fieldset>";
                             ResSTR += "</div>";
                             MasterInput = "";
+                        }
+                        if (DT.Rows[0][84].ToString().Trim() != "")
+                        {
+                            ResSTR += "<div class=\"col-lg-" + DT.Rows[0][83].ToString().Trim() + "\">";
+                            ResSTR += "<div class=\"text-bold-300 font-medium-1\" style=\"margin-top:10px;margin-left:5px\">";
+                            ResSTR += DT.Rows[0][84].ToString().Trim();
+                            ResSTR += "</div>";
+                            ResSTR += "<select class=\"select2 form-control\" id=\"GroupInput_" + DT.Rows[0][0].ToString().Trim() + "_" + Cnt + "_8\">";
+                            if (DT.Rows[0][85].ToString().Trim() != "") { ResSTR += "<option value=\"1\">" + DT.Rows[0][85].ToString().Trim() + "</option>"; }
+                            if (DT.Rows[0][86].ToString().Trim() != "") { ResSTR += "<option value=\"2\">" + DT.Rows[0][86].ToString().Trim() + "</option>"; }
+                            if (DT.Rows[0][87].ToString().Trim() != "") { ResSTR += "<option value=\"3\">" + DT.Rows[0][87].ToString().Trim() + "</option>"; }
+                            if (DT.Rows[0][88].ToString().Trim() != "") { ResSTR += "<option value=\"4\">" + DT.Rows[0][88].ToString().Trim() + "</option>"; }
+                            if (DT.Rows[0][89].ToString().Trim() != "") { ResSTR += "<option value=\"5\">" + DT.Rows[0][89].ToString().Trim() + "</option>"; }
+                            if (DT.Rows[0][90].ToString().Trim() != "") { ResSTR += "<option value=\"6\">" + DT.Rows[0][90].ToString().Trim() + "</option>"; }
+                            if (DT.Rows[0][91].ToString().Trim() != "") { ResSTR += "<option value=\"7\">" + DT.Rows[0][91].ToString().Trim() + "</option>"; }
+                            if (DT.Rows[0][92].ToString().Trim() != "") { ResSTR += "<option value=\"8\">" + DT.Rows[0][92].ToString().Trim() + "</option>"; }
+                            if (DT.Rows[0][93].ToString().Trim() != "") { ResSTR += "<option value=\"9\">" + DT.Rows[0][93].ToString().Trim() + "</option>"; }
+                            if (DT.Rows[0][94].ToString().Trim() != "") { ResSTR += "<option value=\"10\">" + DT.Rows[0][94].ToString().Trim() + "</option>"; }
+                            if (DT.Rows[0][95].ToString().Trim() != "") { ResSTR += "<option value=\"11\">" + DT.Rows[0][95].ToString().Trim() + "</option>"; }
+                            if (DT.Rows[0][96].ToString().Trim() != "") { ResSTR += "<option value=\"12\">" + DT.Rows[0][96].ToString().Trim() + "</option>"; }
+                            if (DT.Rows[0][97].ToString().Trim() != "") { ResSTR += "<option value=\"13\">" + DT.Rows[0][97].ToString().Trim() + "</option>"; }
+                            if (DT.Rows[0][98].ToString().Trim() != "") { ResSTR += "<option value=\"14\">" + DT.Rows[0][98].ToString().Trim() + "</option>"; }
+                            if (DT.Rows[0][99].ToString().Trim() != "") { ResSTR += "<option value=\"15\">" + DT.Rows[0][99].ToString().Trim() + "</option>"; }
+                            if (DT.Rows[0][100].ToString().Trim() != "") { ResSTR += "<option value=\"16\">" + DT.Rows[0][100].ToString().Trim() + "</option>"; }
+                            if (DT.Rows[0][101].ToString().Trim() != "") { ResSTR += "<option value=\"17\">" + DT.Rows[0][101].ToString().Trim() + "</option>"; }
+                            if (DT.Rows[0][102].ToString().Trim() != "") { ResSTR += "<option value=\"18\">" + DT.Rows[0][102].ToString().Trim() + "</option>"; }
+                            if (DT.Rows[0][103].ToString().Trim() != "") { ResSTR += "<option value=\"19\">" + DT.Rows[0][103].ToString().Trim() + "</option>"; }
+                            if (DT.Rows[0][104].ToString().Trim() != "") { ResSTR += "<option value=\"20\">" + DT.Rows[0][104].ToString().Trim() + "</option>"; }
+                            ResSTR += "</select>";
+                            ResSTR += "</div>";
                         }
                         ResSTR += "</div>";
                     }
@@ -291,7 +594,7 @@ namespace iCore_Customer.Controllers
         }
         //====================================================================================================================
         [HttpPost]
-        public void HSU_Form_Upload_Value(string AID, string TAG, string EFID, string EID, string VA, string TX, string O1, string O2, string O3, string O4, string O5, string O6, string O7, string ISF, HttpPostedFileBase UF)
+        public void HSU_Form_Upload_Value(string AID, string TAG, string EFID, string EID, string VA, string TX, string O1, string O2, string O3, string O4, string O5, string O6, string O7, string O8, string ISF, HttpPostedFileBase UF)
         {
             try
             {
@@ -308,13 +611,14 @@ namespace iCore_Customer.Controllers
                 O5 = O5.Replace(",", " ").Replace("#", "").Replace("  ", " ").Trim();
                 O6 = O6.Replace(",", " ").Replace("#", "").Replace("  ", " ").Trim();
                 O7 = O7.Replace(",", " ").Replace("#", "").Replace("  ", " ").Trim();
+                O8 = O8.Replace(",", " ").Replace("#", "").Replace("  ", " ").Trim();
                 ISF = ISF.Replace(",", " ").Replace("#", "").Replace("  ", " ").Trim();
                 string InsDate = Sq.Sql_Date();
                 string InsTime = Sq.Sql_Time();
                 string FileName = ""; string FileType = "";
                 bool FileReady = false;
                 if (UF != null) { try { FileName = UF.FileName.Trim(); FileType = Pb.GetFile_Type(FileName); FileReady = true; } catch (Exception) { } }
-                Sq.Execute_TSql(iCore_Administrator.Modules.DataBase_Selector.Administrator, "Insert Into Users_09_Hospitality_SingleUser_Application_Elements Values ('" + AID + "','" + TAG + "','" + EFID + "','" + EID + "','" + VA + "','" + TX + "','" + O1 + "','" + O2 + "','" + O3 + "','" + O4 + "','" + O5 + "','" + O6 + "','" + O7 + "','" + InsDate + "','" + InsTime + "','" + InsDate + "','" + InsTime + "','0','0','0','','','" + ISF + "','" + FileName + "','" + FileType + "')");
+                Sq.Execute_TSql(iCore_Administrator.Modules.DataBase_Selector.Administrator, "Insert Into Users_09_Hospitality_SingleUser_Application_Elements Values ('" + AID + "','" + TAG + "','" + EFID + "','" + EID + "','" + VA + "','" + TX + "','" + O1 + "','" + O2 + "','" + O3 + "','" + O4 + "','" + O5 + "','" + O6 + "','" + O7 + "','" + InsDate + "','" + InsTime + "','" + InsDate + "','" + InsTime + "','0','0','0','','','" + ISF + "','" + FileName + "','" + FileType + "','" + O8 + "')");
                 if (FileReady == true)
                 {
                     AID = AID.Replace(",", " ").Replace("#", "").Replace("  ", " ").Trim();
@@ -440,7 +744,7 @@ namespace iCore_Customer.Controllers
                                 {
                                     byte[] ImgBytes = System.IO.File.ReadAllBytes(BasPath);
                                     var base64 = Convert.ToBase64String(ImgBytes);
-                                    ResSTR = EID + "!##!" + UID  + "!##!" + String.Format("data:image/jpg;base64,{0}", base64);
+                                    ResSTR = EID + "!##!" + UID + "!##!" + String.Format("data:image/jpg;base64,{0}", base64);
                                 }
                             }
                             else
